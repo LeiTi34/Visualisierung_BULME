@@ -9,7 +9,7 @@ using System.IO;
 using ZedHL;
 
 namespace vis1
-{
+{ 
   partial class VisForm3
   {
     #region Timing
@@ -24,8 +24,8 @@ namespace vis1
       string comport = Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:", "COM-Schnittstelle", "COM3"); //Auswahldialog der Serieller Schnitstelle
       m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One); //Konfiguration der Seriellenn Schnitstelle
 
-      m_SerPort.ReadBufferSize = 20 * 1024;
-      m_SerPort.Open();
+      m_SerPort.ReadBufferSize = 20 * 1024; //Lesebuffer definieren
+      m_SerPort.Open(); //Serielle verbindung öffnen
 
       // ph = new SvIdProtocolHandler(m_SerPort, this);
       ph = new SvIdProtocolHandler3(m_SerPort, this);
@@ -33,7 +33,7 @@ namespace vis1
     }
 
     ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
-    void CreateOnlineCurveWin()
+    void CreateOnlineCurveWin() //Gennerieren des Curve Windows  
     {
       _ow = new OnlineCurveWin3();
       _olc = _ow.olc;
@@ -62,39 +62,41 @@ namespace vis1
       _olc.AddKeyEventHandler(new KeyEventHandler(OnKeyDownOnGraph));
     }
     
-    void CreateVertWin()
+    void CreateVertWin()    //Bar Window generiern
     {
       _vbw = new VertBarWin();
-      string[] names = { "1", "2", "3", "4", "5", "6" };
+      string[] names = { "1", "2", "3", "4", "5", "6" };    //Namen der Bars definieren
       _vbw.CreateBars2(names);
-      _vbw.SetY1Scale(false, -10, 800);
+      _vbw.SetY1Scale(false, -10, 800); //Scale
       _vbw.AxisChange();
     }
 
-    void SetupSliders()
+    void SetupSliders() //Slider Generieren
     {
-      _sb.ms[0].SetRange(0, 1, 0.01); _sb.ms[0].cb = this;
-      _sb.ms[0].Text = "Filt F";
-      _sb.ms[1].SetRange(800, 1800, 1); _sb.ms[1].cb = this;
-      _sb.ms[1].Text = "Right";
-      _sb.ms[2].SetRange(800, 1800, 1); _sb.ms[2].cb = this;
-      _sb.ms[2].Text = "Back";
-      _sb.ms[3].SetRange(800, 1800, 1); _sb.ms[3].cb = this;
-      _sb.ms[3].Text = "Left";
+      _sb.ms[0].SetRange(0, 1, 0.01); _sb.ms[0].cb = this;      //Slider 1 Range definieren
+      _sb.ms[0].Text = "Filt F";    //Slider 1 Name definieren
+      _sb.ms[1].SetRange(800, 1800, 1); _sb.ms[1].cb = this;    //Slider 2 Range definieren
+      _sb.ms[1].Text = "Right";     //Slider 2 Name definiern
+      _sb.ms[2].SetRange(800, 1800, 1); _sb.ms[2].cb = this;    //Slider 3 Range definieren
+      _sb.ms[2].Text = "Back";      //Slider 3 Name definieren
+      _sb.ms[3].SetRange(800, 1800, 1); _sb.ms[3].cb = this;    //Slider 4 Rangee definieren
+      _sb.ms[3].Text = "Left";      //Slider 4 Name definieren
+
       /* _sb.ms[2].SetRange(0.1, 20.0, 0.1); _sb.ms[2].cb = this;
       _sb.ms[2].Text = "Mod Frequ.";
       _sb.ms[3].SetRange(0.1, 20.0, 0.1); _sb.ms[3].cb = this;
       _sb.ms[3].Text = "ModDev"; */
     }
 
-    public void OnValChanged(int aId, MSlider aSlider) // SliderCB
+    public void OnValChanged(int aId, MSlider aSlider) // SliderCB  //Slider Wert senden
     {
       if (aId == 0)
       {
         // ph.binWr.WriteSv16((byte)2, (short)aSlider.val);
         ph.binWr.Write((byte)6);
-        ph.binWr.Write((float)aSlider.val);
+        ph.binWr.Write((float)aSlider.val); //Slider wert auf COM schreiben
       } 
+
       /* aId += 2;
       if (aId >= 2 && aId <= 5)
         ph.binWr.WriteSv16((byte)aId, (short)aSlider.val); */
@@ -102,6 +104,7 @@ namespace vis1
         ph.binWr.Write((byte)2);
         ph.binWr.Write((float)aSlider.val);
       } */
+
       ph.binWr.Flush();
     }
 
