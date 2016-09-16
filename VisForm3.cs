@@ -43,7 +43,7 @@ namespace vis1
       m_LblAry[3] = m_Disp4;    m_LblAry[4] = m_Disp5;      m_LblAry[5] = m_Disp6;
       m_LblAry[6] = m_Disp7;    m_LblAry[7] = m_Disp8;      m_LblAry[8] = m_Disp9;
 
-      SetupSliders();
+      SetupSliders();   //Sliders Gnerieren
 
       //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
     }
