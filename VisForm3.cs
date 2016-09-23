@@ -1,4 +1,3 @@
-d
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -39,9 +38,15 @@ namespace vis1
         {
             InitializeComponent();
 
-            m_LblAry[0] = m_Disp1; m_LblAry[1] = m_Disp2; m_LblAry[2] = m_Disp3;
-            m_LblAry[3] = m_Disp4; m_LblAry[4] = m_Disp5; m_LblAry[5] = m_Disp6;
-            m_LblAry[6] = m_Disp7; m_LblAry[7] = m_Disp8; m_LblAry[8] = m_Disp9;
+            m_LblAry[0] = m_Disp1;
+            m_LblAry[1] = m_Disp2;
+            m_LblAry[2] = m_Disp3;
+            m_LblAry[3] = m_Disp4;
+            m_LblAry[4] = m_Disp5;
+            m_LblAry[5] = m_Disp6;
+            m_LblAry[6] = m_Disp7;
+            m_LblAry[7] = m_Disp8;
+            m_LblAry[8] = m_Disp9;
 
             SetupSliders();   //Sliders Gnerieren
 

@@ -77,7 +77,7 @@ namespace vis1
 
         public void WriteSv16(byte aId, short aVal)
         {
-            binWr.WriteSv16(aId, aVal);   //Snede ID + 2Byte Daten
+            binWr.WriteSv16(aId, aVal);   //Sende ID + 2Byte Daten
         }
 
         // parses all ProtocolPacket's with all Variables
@@ -90,10 +90,10 @@ namespace vis1
         {
         }
 
-        public virtual void Close()
+        public virtual void Close() //Stream schlieﬂen
         {
-            binWr.Close();
-            m_BinRd.Close();
+            binWr.Close();  //Binary Writer schlieﬂen
+            m_BinRd.Close();    //Binary Reader schlieﬂen
         }
     }
 
@@ -109,24 +109,37 @@ namespace vis1
         public override void SwitchAcq(bool aOnOff)
         {
             if (aOnOff)
+            {
                 binWr.WriteSv16(10, 1);
-            // binWr.Write((byte)1);
+                // binWr.Write((byte)1);
+            }
             else
+            {
                 binWr.WriteSv16(10, 0);
-            // binWr.Write((byte)0);
+                // binWr.Write((byte)0);
+            }
         }
 
         public override bool ParseAllPackets()
         {
             //float flV; //never used
-            if (m_P.BytesToRead < NBytes)
+
+            if (m_P.BytesToRead < NBytes)   //Mindestens 3 Byte lesen (ID + 2 Byte Daten)
+            {
                 return false;
-            while (m_P.BytesToRead >= NBytes)
+            }
+
+            while (m_P.BytesToRead >= NBytes)   //Lese 4Byte wenn mindestens 4 Byte im Recive Buffer stehen
             {
                 // flV = m_BinRd.ReadSingle();
                 // vs[0] = (short)flV; ivs[0].AddValue(flV);
-                vs[0] = m_BinRd.ReadInt16(); ivs[0].AddValue(vs[0]);
-                vs[1] = m_BinRd.ReadInt16(); ivs[1].AddValue(vs[1]);
+
+                vs[0] = m_BinRd.ReadInt16();    //Lese 2 Byte
+                ivs[0].AddValue(vs[0]);
+
+                vs[1] = m_BinRd.ReadInt16();    //Lese 2 Byte
+                ivs[1].AddValue(vs[1]);
+
                 // m_valSum += NVals;
             }
             return true;
@@ -139,33 +152,45 @@ namespace vis1
         public SvIdProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
           : base(aPort, aPrintObj)
         {
-            NVals = 4; NBytes = 3 * NVals;
+            NVals = 4;
+            NBytes = 3 * NVals;
         }
 
-        public override void SwitchAcq(bool aOnOff)
+        public override void SwitchAcq(bool aOnOff)// ?
         {
             if (aOnOff)
-            { binWr.Write((byte)1); binWr.Write((byte)1); }
+            {
+                binWr.Write((byte)1);
+                binWr.Write((byte)1);
+            }
             else
-            { binWr.Write((byte)1); binWr.Write((byte)0); }
+            {
+                binWr.Write((byte)1);
+                binWr.Write((byte)0);
+            }
         }
 
-        public override bool ParseAllPackets()
+        public override bool ParseAllPackets()  //Daten einlesen
         {
-            if (m_P.BytesToRead < 3)
-                return false;
             int i;
+
+            if (m_P.BytesToRead < 3)    //Mindestens 3Byte (ID + 2Byte Data)
+            {
+                return false;
+            }
+
             while (m_P.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1;
-                if (i >= 0 && i < NVals) // float-SV
+                i = m_BinRd.ReadByte() - 1; //Einlesen der ID
+
+                if (i >= 0 && i < NVals) // ID 0 bis 3: float-SV
                 {
-                    vf[i] = m_BinRd.ReadSingle();
+                    vf[i] = m_BinRd.ReadSingle(); //4Byte float einlesen
                     ivs[i].AddValue(vf[i]);
                 }
-                if (i == 9) // string SV
+                if (i == 9) //ID 9:  string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());
+                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
                 }
             }
             return true;
@@ -185,37 +210,43 @@ namespace vis1
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)
+            if (m_P.BytesToRead < 3)    //Mindestens 3 Byte (ID + 2 Byte Daten)
+            {
                 return false;
-            int i;
+            }
+
+            int i;  //ID
+
             while (m_P.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1;
-                if (i == 9)
-                { // string SV
+                i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+
+                ///CHANGE: continue mit else if ersetzt!
+                if (i == 9) //ID 9: string SV
+                {
                     _printCB.DoPrint(m_BinRd.ReadCString());
-                    continue;
+                    //continue;
                 }
-                if (i >= 0 && i <= 8)
-                { // 3.13 Format
+                else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format
+                {
                     vf[i] = m_BinRd.Read3p13();
                     ivs[i].AddValue(vf[i]);
-                    continue;
+                    //continue;
                 }
-                if (i >= 10 && i <= 19)
-                { // short
-                    if (_scal == Scaling.q15)
-                        vf[i - 10] = C1 * (float)m_BinRd.ReadInt16();
+                else if (i >= 10 && i <= 19)    //ID 10 bis 19: short (2 Byte)
+                {
+                    if (_scal == Scaling.q15) //_scal == 1
+                        vf[i - 10] = C1 * m_BinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die urspr¸ngliche ID wiederherzustellen)
                     else
-                        vf[i - 10] = m_BinRd.ReadInt16();
+                        vf[i - 10] = m_BinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die urspr¸ngliche ID wiederherzustellen)
                     ivs[i - 10].AddValue(vf[i - 10]);
-                    continue;
+                    //continue;
                 }
-                if (i >= 20 && i <= 29)
-                { // float
+                else if (i >= 20 && i <= 29)    //ID 20 bis 29: float
+                {
                     vf[i - 20] = m_BinRd.ReadSingle();
                     ivs[i - 20].AddValue(vf[i - 20]);
-                    continue;
+                    //continue;
                 }
             }
             return true;
@@ -232,20 +263,29 @@ namespace vis1
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)
+            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
+            {
                 return false;
-            int i;
+            }
+
+            int i;  //ID
+
             while (m_P.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1;
-                if (i == 9) // string SV
+                i = m_BinRd.ReadByte() - 1; //Einlesen von ID
+
+                if (i == 9) //ID 9: string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());
-                    continue;
+                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
+                    //continue;
                 }
-                if (i >= 0 && i <= 3)
+                else if (i >= 0 && i <= 3)
+                {
                     vf[i] = m_BinRd.Read1p11();
+                }
+
                 // if( i>=1 && i<=3 ) vf[i] = m_BinRd.ReadInt16();
+
                 ivs[i].AddValue(vf[i]);
             }
             return true;
@@ -263,20 +303,27 @@ namespace vis1
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)
+            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
+            {
                 return false;
-            int i;
+            }
+
+            int i;  //ID
+
             while (m_P.BytesToRead >= 3)
             {
-                i = m_P.ReadByte() - 1;
-                if (i == 9) // string SV
-                    _printCB.DoPrint(m_BinRd.ReadCString());
-                else if (i >= 0 && i <= 1) // float-SV
+                i = m_P.ReadByte() - 1; //ID einlesen
+
+                if (i == 9) //ID 9: string SV
                 {
-                    vf[i] = m_BinRd.ReadSingle();
+                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
+                }
+                else if (i >= 0 && i <= 1) //ID 1 bis 2: float-SV
+                {
+                    vf[i] = m_BinRd.ReadSingle();   //4 Byte float einlesen
                     // ivs[i].AddValue(vf[i]);
                 }
-                else if (i >= 2 && i <= 3)
+                else if (i >= 2 && i <= 3)  //ID 2 bis 3: ??
                 {
                     int NVals = (byte)m_P.ReadByte();
                     brb[i].AddBytes(m_P.BaseStream, 2 * NVals);
