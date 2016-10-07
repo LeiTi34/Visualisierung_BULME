@@ -3,12 +3,12 @@
  * @author Bulme
  * @brief Konfiguration der Graphen, Kommunikation, Sample frequenz, etc.
  */ 
-//using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-//using System.Threading;
+using System.Threading;
 using System.IO.Ports;
-//using System.IO;
+using System.IO;
 // using System.Diagnostics;
 using ZedHL;
 
