@@ -5,19 +5,27 @@ using System.Windows.Forms;
 
 namespace vis1
 {
+    /*!
+     * Liest Daten von Stream ein
+     */
     class BinaryReaderEx : BinaryReader //Liest von Datenstrom (COM)
     {
-        byte[] m_CString = new byte[50];
+        byte[] m_CString = new byte[50]; //!< Buffer zum einlesen eines Strings im Byte format
 
         public BinaryReaderEx(Stream input)
           : base(input)
         {
         }
 
+        /*!
+         * Liest String von Datenstrom ein. 
+         * Liest bis 0x0 empfangen wird und liefert einen string zurueck
+         * @return Eingelesenen String
+         */
         public string ReadCString() //String einlesen bis 0x0
         {
-            int len = 0;    
-            byte ch;    //Hilfsvariable zum einlesen
+            int len = 0; //Enthaelt Sting-laenge
+            byte ch;    //Hilfsvarieble zum einlesen von char
 
             while (true)
             {
@@ -31,30 +39,41 @@ namespace vis1
                 m_CString[len] = ch; //Zeichen in Byte-Array schreiben
                 len++;
             }
-            string ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
+            string ret = Encoding.ASCII.GetString(m_CString, 0, len); // Byte Array in String umwandeln
             return ret;   //String zurückliefern
         }
 
         // 1.11 Format
+        /*!
+         * Einlesen des Fixkommaformates 1.11 (2Byte). Liefert Wert zurueck.
+         */
         public float Read1p11()
         {
             return (float)this.ReadInt16() / 2048;
         }
 
         // 3.13 Format
+        /*!
+        * Einlesen des Fixkommaformates 3.13 (2Byte). Liefert Wert zurueck.
+        */
         public float Read3p13()
         {
             return (float)this.ReadInt16() / 8192;
         }
     }
 
-    class BinaryWriterEx : BinaryWriter
+    /*!
+     * Enthaelt Methoden zum Schreiben auf den Stream
+     */
+     class BinaryWriterEx : BinaryWriter
     {
-        public BinaryWriterEx(Stream input)     //Schreibt in Datenstrom (COM)
-          : base(input)
-        {
-        }
+        public BinaryWriterEx(Stream input) : base(input) { }   //Schreibt in Datenstrom (COM)
 
+        /*!
+         * Schreibt 1 Byte ID und 2 Byte Daten auf den Datenstrom
+         * @param aId ID (1 Byte)
+         * @param aVal Daten (2 Byte)
+         */
         public void WriteSv16(byte aId, short aVal)
         {
             this.Write(aId);  //Sende ID
@@ -136,15 +155,21 @@ namespace vis1
             _binWr.Flush();
         }
 
+        /*!
+         * Wandelt einen String je nach Index in einen Wert um
+         * Index:
+         * - l: Int  
+         * - 
+         */
         object Str2Val(string aTxt)
         {
             int idx; string txt2;
 
-            txt2 = aTxt.Trim();
+            txt2 = aTxt.Trim(); //Entfernt space vor und nach dem string
             if (txt2.Length == 0)
                 return null;
 
-            idx = txt2.IndexOf('l');
+            idx = txt2.IndexOf('l');    //Index l: Int
             if (idx != -1)
             {
                 Int32 val;
@@ -152,7 +177,7 @@ namespace vis1
                 val = Int32.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf('f');
+            idx = txt2.IndexOf('f');    //Index f: Float
             if (idx != -1)
             {
                 float val;
@@ -160,14 +185,15 @@ namespace vis1
                 val = float.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf(',');
+            idx = txt2.IndexOf(','); //Index ,: Float
             if (idx != -1)
             {
                 float val;
                 val = float.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf('/');
+            idx = txt2.IndexOf('/'); /* Index /: Float
+                                      * Teilt String in Wert vor und nach '/' auf und Dividiert diese*/
             if (idx != -1)
             {
                 float val;
@@ -175,6 +201,7 @@ namespace vis1
                 val = float.Parse(parts[0]) / float.Parse(parts[1]);
                 return val;
             }
+            //Ohne Index: Short
             short sval;
             sval = short.Parse(txt2);
             return sval;

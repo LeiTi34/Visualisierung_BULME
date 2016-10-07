@@ -1,8 +1,11 @@
+/*!
+ * @file ProtocolHandler.cs
+ * @author Bulme
+ * @brief Beinhaltet verschieden versionen von ProtocolHandler zum abarbeiten des Datenstroms
+ */
 
-using System;
 // using System.Text;
 using System.IO.Ports;
-using System.IO;
 using System.Diagnostics;
 using ZedHL;
 
@@ -11,73 +14,91 @@ namespace vis1
     public enum Scaling
     {
         None = 0,
-        q15 = 1,
+        Q15 = 1,
     }
 
-    class Scaling2
+    internal class Scaling2
     {
-        public const float q15 = (float)1.0 / (float)Int16.MaxValue;
-        public const float q11 = (float)1.0 / (float)2048;
+        public const float Q15 = (float)1.0 / short.MaxValue;
+        public const float Q11 = (float)1.0 / 2048;
     }
 
-    public interface IPrintCB
+    public interface IPrintCb
     {
         void DoPrint(string aTxt);
     }
 
-
-    class ProtocolHandler
+    // TODO: Implement IDisposable
+    internal class ProtocolHandler
     {
         #region Member Variables
-        protected SerialPort m_P;
-        protected BinaryReaderEx m_BinRd;
-        protected Stopwatch stw = new Stopwatch();
-        protected int m_valSum;
-        protected IPrintCB _printCB;
+        protected SerialPort MPort;   //!< Gibt Port der COM-Schnittstelle an
+        protected BinaryReaderEx MBinRd; //!< Binary Reader
+        protected Stopwatch Stw = new Stopwatch();  //!< Stopuhr
+        protected int MValSum; //!< Summe der Werte fuer eine Sekunde
+        protected IPrintCb PrintCb;
         #endregion
 
         #region Properties
-        public Scaling _scal = Scaling.None;
-        public BinaryWriterEx binWr;
-        public short[] vs = new short[10];
-        public float[] vf = new float[10];
-        public IValueSink[] ivs = new IValueSink[10];
-        public ByteRingBuffer[] brb = new ByteRingBuffer[10];
-        public int NVals, NBytes;
-        public double valsPerSec;
+        public Scaling Scal = Scaling.None;    //!< Skalierung
+        public BinaryWriterEx BinWr;    //!< Binary Writer
+        public short[] Vs = new short[10];  //!< Hilfsvariable zum einlesen von short Werten.
+        public float[] Vf = new float[10];  //!< Hilfsvariable zum einlesen von float Werten.
+        public IValueSink[] Ivs = new IValueSink[10];   //!< Uebergibt Wert an ZedGraph
+        public ByteRingBuffer[] Brb = new ByteRingBuffer[10]; //!< Definiert Ringbuffer
+        public int NVals;
+        public int NBytes;   //!< NBytes Gibt die Mindetsanzahl der zu lesenden Bytes ein
+        public double ValsPerSec;   //!< Enthaelt Werte/Sekunde
         #endregion
 
-        public ProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
+        /*!
+         * Weist Port zu, ínitialisiert BinaryReader, -Writer und setzt Stopuhr zurueck
+         * @param aPort COM Port
+         * @param aPrintCB
+         */
+        public ProtocolHandler(SerialPort aPort, IPrintCb aPrintObj)
         {
-            m_P = aPort;
-            m_BinRd = new BinaryReaderEx(m_P.BaseStream); //Liest von aPort
-            binWr = new BinaryWriterEx(m_P.BaseStream);   //Schreibt auf aPort
-            _printCB = aPrintObj;
-            for (int i = 0; i < ivs.Length; i++)
-                ivs[i] = new DummyValueSink();
-            stw.Reset(); stw.Start(); //Stopuhr neustarten
+            MPort = aPort;
+            MBinRd = new BinaryReaderEx(MPort.BaseStream); //Liest von aPort
+            BinWr = new BinaryWriterEx(MPort.BaseStream);   //Schreibt auf aPort
+            PrintCb = aPrintObj;
+            for (var i = 0; i < Ivs.Length; i++)
+                Ivs[i] = new DummyValueSink();
+            Stw.Reset(); Stw.Start(); //Stopuhr neustarten
         }
 
-        public bool CheckValsPerSecond()    //Zählt werte pro Sekunde
+        /*! 
+         * Zaehlt werte pro Sekunde
+         * Nach mindestens einer Sekunde Werden die gezaehlten Werte durch die vergangene Zeit dividiert und somit die Werte pro Sekunde berechnet.
+         * Danach wird die Stoppuhr und der Wetezaehler zurueckgesetzt.
+         * Liefert false zuruck wenn weniger als eine Sekunde vergangen ist.
+         * param ValsPerSec Berechnete Werte/Sekunde
+         * 
+         * @param m_valSum Gezaehlte Werte
+         * @param stw.ElapsedMilliseconds Vergangen Zeit seit die Stoppuhr gestartet wurde.
+         */
+        public bool CheckValsPerSecond()
         {
-            if (stw.ElapsedMilliseconds > 1000) //nach einer Sekunde
-            {
-                stw.Stop();     //Stopuhr anhalten
-                valsPerSec = (double)m_valSum / ((double)stw.ElapsedMilliseconds / 1000.0); //Berechnen der Werte pro Sekunde
-                m_valSum = 0; stw.Reset(); stw.Start(); //Wertezähler und Stopuhr zurücksetzen
-                return true;
-            }
-            return false;
+            if (Stw.ElapsedMilliseconds <= 1000) return false;
+            Stw.Stop();     //Stopuhr anhalten
+            ValsPerSec = MValSum / (Stw.ElapsedMilliseconds / 1000.0); //Berechnen der Werte pro Sekunde
+            MValSum = 0; Stw.Reset(); Stw.Start(); //Wertezähler und Stopuhr zurücksetzen
+            return true;
         }
 
         public void Flush()
         {
-            binWr.Flush();
+            BinWr.Flush();
         }
 
+        /*!
+         * Schreibt 1 Byte ID + 2 Byte short Daten auf den Stream
+         * @param aId ID
+         * @param aVal Daten
+         */
         public void WriteSv16(byte aId, short aVal)
         {
-            binWr.WriteSv16(aId, aVal);   //Sende ID + 2Byte Daten
+            BinWr.WriteSv16(aId, aVal);   //Sende ID + 2Byte Daten
         }
 
         // parses all ProtocolPacket's with all Variables
@@ -90,32 +111,43 @@ namespace vis1
         {
         }
 
+        /*!
+         * Schliesst BinaryWriter und BinaryReader
+         */
         public virtual void Close() //Stream schließen
         {
-            binWr.Close();  //Binary Writer schließen
-            m_BinRd.Close();    //Binary Reader schließen
+            BinWr.Close();  //Binary Writer schließen
+            MBinRd.Close();    //Binary Reader schließen
         }
     }
 
-
-    class NxtProtocolHandler : ProtocolHandler
+    internal class NxtProtocolHandler : ProtocolHandler
     {
-        public NxtProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
+        /*!
+         * @class NxtProtocolHandl  ererbt von Protocol Handler ab
+         */
+        public NxtProtocolHandler(SerialPort aPort, IPrintCb aPrintObj)
           : base(aPort, aPrintObj)
         {
-            NVals = 2; NBytes = 4;
+            //! Definiert NVals und NBytes
+            NVals = 2; NBytes = 4; //! \param NBytes Minimale Anzahl an zu lesenden Byte
+                                  
         }
 
+        /*!
+         * Sendet die ID 10 und entweder 0 oder 1
+         * @param aOnOff    true -> sende 1, false -> sende 0
+         */
         public override void SwitchAcq(bool aOnOff)
         {
             if (aOnOff)
             {
-                binWr.WriteSv16(10, 1);
+                BinWr.WriteSv16(10, 1);
                 // binWr.Write((byte)1);
             }
             else
             {
-                binWr.WriteSv16(10, 0);
+                BinWr.WriteSv16(10, 0);
                 // binWr.Write((byte)0);
             }
         }
@@ -124,21 +156,28 @@ namespace vis1
         {
             //float flV; //never used
 
-            if (m_P.BytesToRead < NBytes)   //Mindestens 3 Byte lesen (ID + 2 Byte Daten)
+            /*! Liest von stream ein wenn mindestens 4 Byte (2 Byte ID + 2 Byte Daten) gelesen weren koennen.
+             * Uebergibt ivs[1],[2] je 2 Byte. Liefert false zurueck wenn mindestens 4 Byte gelesen werden koennen.
+             * @param m_P.BytesToRead   Giebt Anzahl an Bytes an die vom Stream gelesen werden koennen
+             * @param NBytes    Mindestanzahl an zu lesenden Bytes
+             * @return Liefert false zurueck wenn weniger als 4 Bytes gelesen werden koennen
+             */
+
+            if (MPort.BytesToRead < NBytes)
             {
                 return false;
             }
 
-            while (m_P.BytesToRead >= NBytes)   //Lese 4Byte wenn mindestens 4 Byte im Recive Buffer stehen
+            while (MPort.BytesToRead >= NBytes)   //Lese 4Byte wenn mindestens 4 Byte im Recive Buffer stehen
             {
                 // flV = m_BinRd.ReadSingle();
                 // vs[0] = (short)flV; ivs[0].AddValue(flV);
 
-                vs[0] = m_BinRd.ReadInt16();    //Lese 2 Byte
-                ivs[0].AddValue(vs[0]);
+                Vs[0] = MBinRd.ReadInt16();    //Lese 2 Byte
+                Ivs[0].AddValue(Vs[0]);
 
-                vs[1] = m_BinRd.ReadInt16();    //Lese 2 Byte
-                ivs[1].AddValue(vs[1]);
+                Vs[1] = MBinRd.ReadInt16();    //Lese 2 Byte
+                Ivs[1].AddValue(Vs[1]);
 
                 // m_valSum += NVals;
             }
@@ -147,50 +186,59 @@ namespace vis1
     }
 
 
-    class SvIdProtocolHandler : ProtocolHandler
+    internal class SvIdProtocolHandler : ProtocolHandler
     {
-        public SvIdProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
+        public SvIdProtocolHandler(SerialPort aPort, IPrintCb aPrintObj)
           : base(aPort, aPrintObj)
         {
             NVals = 4;
             NBytes = 3 * NVals;
         }
 
+        /*!
+         * 
+         * @param aOnOff    true-> sendet 0x11, false sendet 0x10
+         */
         public override void SwitchAcq(bool aOnOff)// ?
         {
             if (aOnOff)
             {
-                binWr.Write((byte)1);
-                binWr.Write((byte)1);
+                BinWr.Write((byte)1);
+                BinWr.Write((byte)1);
             }
             else
             {
-                binWr.Write((byte)1);
-                binWr.Write((byte)0);
+                BinWr.Write((byte)1);
+                BinWr.Write((byte)0);
             }
         }
 
+        /*!
+         * Liest mindestens 3 Byte ein und erkennt anhand der ID das entsprechende Format.
+         * ID 0 bis 3:  float value
+         * ID 9:        string value
+         * @param NVals gibt die ID fuer float values an (0 bis NVals)
+         * @return  Liefert false zurueck wenn weniger als 3 Byte gelesen werden koennen
+         */
         public override bool ParseAllPackets()  //Daten einlesen
         {
-            int i;
-
-            if (m_P.BytesToRead < 3)    //Mindestens 3Byte (ID + 2Byte Data)
+            if (MPort.BytesToRead < 3)    //Mindestens 3Byte (ID + 2Byte Data)
             {
                 return false;
             }
 
-            while (m_P.BytesToRead >= 3)
+            while (MPort.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1; //Einlesen der ID
+                var i = MBinRd.ReadByte() - 1;
 
                 if (i >= 0 && i < NVals) // ID 0 bis 3: float-SV
                 {
-                    vf[i] = m_BinRd.ReadSingle(); //4Byte float einlesen
-                    ivs[i].AddValue(vf[i]);
+                    Vf[i] = MBinRd.ReadSingle(); //4Byte float einlesen
+                    Ivs[i].AddValue(Vf[i]);
                 }
                 if (i == 9) //ID 9:  string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
+                    PrintCb.DoPrint(MBinRd.ReadCString());    //String einlesen und ausgeben
                 }
             }
             return true;
@@ -198,11 +246,11 @@ namespace vis1
     }
 
 
-    class SvIdProtocolHandler3 : SvIdProtocolHandler
+    internal class SvIdProtocolHandler3 : SvIdProtocolHandler
     {
-        const float C1 = (float)1.0 / (float)Int16.MaxValue;
+        private const float C1 = (float)1.0 / short.MaxValue;
 
-        public SvIdProtocolHandler3(SerialPort aPort, IPrintCB aPrintObj)
+        public SvIdProtocolHandler3(SerialPort aPort, IPrintCb aPrintObj)
           : base(aPort, aPrintObj)
         {
             NVals = 9; NBytes = 3 * NVals;
@@ -210,42 +258,40 @@ namespace vis1
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)    //Mindestens 3 Byte (ID + 2 Byte Daten)
+            if (MPort.BytesToRead < 3)    //Mindestens 3 Byte (ID + 2 Byte Daten)
             {
                 return false;
             }
 
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
+            while (MPort.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+                var i = MBinRd.ReadByte() - 1;  //ID
 
-                ///CHANGE: continue mit else if ersetzt!
+                //CHANGE: continue mit else if ersetzt!
                 if (i == 9) //ID 9: string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());
+                    PrintCb.DoPrint(MBinRd.ReadCString());
                     //continue;
                 }
                 else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format
                 {
-                    vf[i] = m_BinRd.Read3p13();
-                    ivs[i].AddValue(vf[i]);
+                    Vf[i] = MBinRd.Read3P13();
+                    Ivs[i].AddValue(Vf[i]);
                     //continue;
                 }
-                else if (i >= 10 && i <= 19)    //ID 10 bis 19: short (2 Byte)
+                else if (i >= 10 && i <= 19)    //ID 10 bis 19: short value (2 Byte)
                 {
-                    if (_scal == Scaling.q15) //_scal == 1
-                        vf[i - 10] = C1 * m_BinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
+                    if (Scal == Scaling.Q15) //_scal == 1
+                        Vf[i - 10] = C1 * MBinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
                     else
-                        vf[i - 10] = m_BinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
-                    ivs[i - 10].AddValue(vf[i - 10]);
+                        Vf[i - 10] = MBinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
+                    Ivs[i - 10].AddValue(Vf[i - 10]);
                     //continue;
                 }
-                else if (i >= 20 && i <= 29)    //ID 20 bis 29: float
+                else if (i >= 20 && i <= 29)    //ID 20 bis 29: float value
                 {
-                    vf[i - 20] = m_BinRd.ReadSingle();
-                    ivs[i - 20].AddValue(vf[i - 20]);
+                    Vf[i - 20] = MBinRd.ReadSingle();
+                    Ivs[i - 20].AddValue(Vf[i - 20]);
                     //continue;
                 }
             }
@@ -254,48 +300,46 @@ namespace vis1
     }
 
 
-    class SvIdProtocolHandler2 : SvIdProtocolHandler
+    internal class SvIdProtocolHandler2 : SvIdProtocolHandler
     {
-        public SvIdProtocolHandler2(SerialPort aPort, IPrintCB aPrintObj)
+        public SvIdProtocolHandler2(SerialPort aPort, IPrintCb aPrintObj)
           : base(aPort, aPrintObj)
         {
         }
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
+            if (MPort.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
             {
                 return false;
             }
 
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
+            while (MPort.BytesToRead >= 3)
             {
-                i = m_BinRd.ReadByte() - 1; //Einlesen von ID
+                var i = MBinRd.ReadByte() - 1;  //ID
 
                 if (i == 9) //ID 9: string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
+                    PrintCb.DoPrint(MBinRd.ReadCString());    //String einlesen und ausgeben
                     //continue;
                 }
                 else if (i >= 0 && i <= 3)
                 {
-                    vf[i] = m_BinRd.Read1p11();
+                    Vf[i] = MBinRd.Read1P11();
                 }
 
                 // if( i>=1 && i<=3 ) vf[i] = m_BinRd.ReadInt16();
 
-                ivs[i].AddValue(vf[i]);
+                Ivs[i].AddValue(Vf[i]);
             }
             return true;
         }
     }
 
 
-    class HPerfProtocolHandler : SvIdProtocolHandler
+    internal class HPerfProtocolHandler : SvIdProtocolHandler
     {
-        public HPerfProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
+        public HPerfProtocolHandler(SerialPort aPort, IPrintCb aPrintObj)
           : base(aPort, aPrintObj)
         {
             NVals = 4; NBytes = 3 * NVals;
@@ -303,30 +347,28 @@ namespace vis1
 
         public override bool ParseAllPackets()
         {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
+            if (MPort.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
             {
                 return false;
             }
 
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
+            while (MPort.BytesToRead >= 3)
             {
-                i = m_P.ReadByte() - 1; //ID einlesen
+                var i = MPort.ReadByte() - 1;  //ID
 
                 if (i == 9) //ID 9: string SV
                 {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
+                    PrintCb.DoPrint(MBinRd.ReadCString());    //String einlesen und ausgeben
                 }
                 else if (i >= 0 && i <= 1) //ID 1 bis 2: float-SV
                 {
-                    vf[i] = m_BinRd.ReadSingle();   //4 Byte float einlesen
+                    Vf[i] = MBinRd.ReadSingle();   //4 Byte float einlesen
                     // ivs[i].AddValue(vf[i]);
                 }
                 else if (i >= 2 && i <= 3)  //ID 2 bis 3: ??
                 {
-                    int NVals = (byte)m_P.ReadByte();
-                    brb[i].AddBytes(m_P.BaseStream, 2 * NVals);
+                    int nVals = (byte)MPort.ReadByte();
+                    Brb[i].AddBytes(MPort.BaseStream, 2 * nVals);
                 }
             }
             return true;
