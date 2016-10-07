@@ -1,3 +1,8 @@
+/*!
+ * @file DotNetSvExtensions.cs
+ * @author Bulme
+ * @brief Beinhaltet veränderte .NET Klasse
+ */ 
 using System;
 using System.Text;
 using System.IO;
@@ -5,70 +10,96 @@ using System.Windows.Forms;
 
 namespace vis1
 {
-    class BinaryReaderEx : BinaryReader //Liest von Datenstrom (COM)
-    {
-        byte[] m_CString = new byte[50];
+    /*!
+     * Liest Daten von Stream ein
+     */
 
-        public BinaryReaderEx(Stream input)
-          : base(input)
+    internal class BinaryReaderEx : BinaryReader //Liest von Datenstrom (COM)
+    {
+        readonly byte[] _mCString = new byte[50]; //!< Buffer zum einlesen eines Strings im Byte format
+
+        public BinaryReaderEx(Stream input) : base(input)
         {
         }
 
+        /*!
+         * Liest String von Datenstrom ein. 
+         * Liest bis 0x0 empfangen wird und liefert einen string zurueck
+         * @return Eingelesenen String
+         */
         public string ReadCString() //String einlesen bis 0x0
         {
-            int len = 0;    
-            byte ch;    //Hilfsvariable zum einlesen
+            var len = 0; //Enthaelt Sting-laenge
 
             while (true)
             {
-                ch = this.ReadByte();   //Lesen von 1 Byte
+                var ch = ReadByte();    //Hilfsvarieble zum einlesen von char
 
                 if (ch == 0)    //Lesen bis Zeichen 0x0 eingelesen wird
                 {
                     break;
                 }
 
-                m_CString[len] = ch; //Zeichen in Byte-Array schreiben
+                _mCString[len] = ch; //Zeichen in Byte-Array schreiben
                 len++;
             }
-            string ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
+            var ret = Encoding.ASCII.GetString(_mCString, 0, len); // Byte Array in String umwandeln
             return ret;   //String zurückliefern
         }
 
         // 1.11 Format
-        public float Read1p11()
+        /*!
+         * Einlesen des Fixkommaformates 1.11 (2Byte). Liefert Wert zurueck.
+         */
+        public float Read1P11()
         {
-            return (float)this.ReadInt16() / 2048;
+            return (float)ReadInt16() / 2048;
         }
 
         // 3.13 Format
-        public float Read3p13()
+        /*!
+        * Einlesen des Fixkommaformates 3.13 (2Byte). Liefert Wert zurueck.
+        */
+        public float Read3P13()
         {
-            return (float)this.ReadInt16() / 8192;
+            return (float)ReadInt16() / 8192;
+        }
+
+        //protected virtual void Dispose(bool disposing);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 
-    class BinaryWriterEx : BinaryWriter
+    /*!
+     * Enthaelt Methoden zum Schreiben auf den Stream
+     */
+     class BinaryWriterEx : BinaryWriter
     {
-        public BinaryWriterEx(Stream input)     //Schreibt in Datenstrom (COM)
-          : base(input)
-        {
-        }
+        public BinaryWriterEx(Stream input) : base(input) { }   //Schreibt in Datenstrom (COM)
 
+        /*!
+         * Schreibt 1 Byte ID und 2 Byte Daten auf den Datenstrom
+         * @param aId ID (1 Byte)
+         * @param aVal Daten (2 Byte)
+         */
         public void WriteSv16(byte aId, short aVal)
         {
-            this.Write(aId);  //Sende ID
-            this.Write(aVal); //Sende 2Byte Daten
+            Write(aId);  //Sende ID
+            Write(aVal); //Sende 2Byte Daten
                               /* this.Write((byte)aVal); // LB
                               this.Write((byte)(aVal >> 8)); // HB */
 
         }
     }
 
-    class TrackBarEx : TrackBar
+   /* class TrackBarEx : TrackBar
     {
-        int m_LastVal = 0;
-        public bool barWasMoved = false;
+        private int _mLastVal = 0;
+        public bool BarWasMoved = false;
 
         public TrackBarEx()
           : base()
@@ -77,26 +108,26 @@ namespace vis1
 
         protected override void OnValueChanged(EventArgs e)
         {
-            barWasMoved = true;
+            BarWasMoved = true;
             base.OnValueChanged(e);
         }
 
         public bool BarValueChanged()
         {
-            return (this.Value != m_LastVal);
+            return Value != _mLastVal;
         }
 
         public short GetValue()
         {
-            m_LastVal = this.Value;
-            return (short)m_LastVal;
+            _mLastVal = Value;
+            return (short)_mLastVal;
         }
-    }
+    }*/
 
 
     class CommandParser
     {
-        BinaryWriter _binWr;
+        readonly BinaryWriter _binWr;
 
         public CommandParser(BinaryWriter aWr)
         {
@@ -105,76 +136,81 @@ namespace vis1
 
         public void ParseAndSend(string aCmd)
         {
-            object obj; bool first = true;
-            string[] words = aCmd.Split(' ');
-            foreach (string txt in words)
+            var first = true;
+            var words = aCmd.Split(' ');
+            foreach (var txt in words)
             {
-                obj = Str2Val(txt);
+                var obj = Str2Val(txt);
                 if (obj == null)
                     continue;
                 if (first)
                 {
-                    short sv = (short)obj;
+                    var sv = (short)obj;
                     _binWr.Write((byte)sv); first = false;
                 }
-                else if (obj.GetType() == typeof(Int32))
+                else if (obj is int)
                 {
-                    Int32 v32 = (Int32)obj;
+                    var v32 = (Int32)obj;
                     _binWr.Write(v32);
                 }
-                else if (obj.GetType() == typeof(float))
+                else if (obj is float)
                 {
-                    float fv = (float)obj;
+                    var fv = (float)obj;
                     _binWr.Write(fv);
                 }
                 else
                 {
-                    short sv = (short)obj;
+                    var sv = (short)obj;
                     _binWr.Write(sv);
                 }
             }
             _binWr.Flush();
         }
 
+        /*!
+         * Wandelt einen String je nach Index in einen Wert um
+         * Index:
+         * - l: Int  
+         * - f: Float  
+         * - ,: Float  
+         * - /: Float (Teilt den Wert vor durch Wert nach dem '/'  
+         * - Andere: Short
+         */
         object Str2Val(string aTxt)
         {
-            int idx; string txt2;
-
-            txt2 = aTxt.Trim();
+            var txt2 = aTxt.Trim();
             if (txt2.Length == 0)
                 return null;
 
-            idx = txt2.IndexOf('l');
+            var idx = txt2.IndexOf('l');    //Index l: Int
             if (idx != -1)
             {
-                Int32 val;
                 txt2 = txt2.Remove(idx, 1);
-                val = Int32.Parse(txt2);
+                var val = int.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf('f');
+            idx = txt2.IndexOf('f');    //Index f: Float
             if (idx != -1)
             {
-                float val;
                 txt2 = txt2.Remove(idx, 1);
-                val = float.Parse(txt2);
+                var val = float.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf(',');
+            idx = txt2.IndexOf(','); //Index ,: Float
             if (idx != -1)
             {
-                float val;
-                val = float.Parse(txt2);
+                var val = float.Parse(txt2);
                 return val;
             }
-            idx = txt2.IndexOf('/');
+            idx = txt2.IndexOf('/'); /* Index /: Float
+                                      * Teilt String in Wert vor und nach '/' auf und Dividiert diese*/
             if (idx != -1)
             {
-                float val;
-                string[] parts = txt2.Split('/');
-                val = float.Parse(parts[0]) / float.Parse(parts[1]);
+                var parts = txt2.Split('/');
+                var val = float.Parse(parts[0]) / float.Parse(parts[1]);
                 return val;
             }
+            //Ohne Index: Short
             short sval;
             sval = short.Parse(txt2);
             return sval;

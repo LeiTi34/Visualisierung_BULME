@@ -1,7 +1,7 @@
 
 namespace vis1
 {
-  partial class VisForm3
+    partial class VisForm3
   {
     /// <summary>
     /// Required designer variable.

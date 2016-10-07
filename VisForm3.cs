@@ -1,23 +1,26 @@
+/*!
+ * @file VisForm3.cs
+ * @author Bulme
+ * @brief Beinhaltet Klasse für grafische Oberfläche
+ */ 
 using System;
-using System.Drawing;
 using System.Windows.Forms;
-using System.Threading;
 using System.IO.Ports;
-using System.IO;
 // using System.Diagnostics;
 using ZedHL;
 
 namespace vis1
 {
-    public partial class VisForm3 : Form, IPrintCB, SliderCB
+    partial class VisForm3 : Form, IPrintCb, SliderCB
     {
         #region Member Variables
-        Label[] m_LblAry = new Label[9];
-        SerialPort m_SerPort;
+
+        readonly Label[] _mLblAry = new Label[9];
+        SerialPort _mSerPort;   //!< Enthaelt COM-Port
         OnlineCurveWin3 _ow;
         OnlineCurveControl _olc;
         VertBarWin _vbw;
-        ProtocolHandler ph;
+        ProtocolHandler _ph;
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
         PianoForm _pnf;
@@ -31,22 +34,22 @@ namespace vis1
         //Thread _decoderThr; //WARNING: never used
         string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
 
-        MethodInvoker _AddTextInvoker;
+        MethodInvoker _addTextInvoker;
         #endregion
 
         public VisForm3()
         {
             InitializeComponent();
 
-            m_LblAry[0] = m_Disp1;
-            m_LblAry[1] = m_Disp2;
-            m_LblAry[2] = m_Disp3;
-            m_LblAry[3] = m_Disp4;
-            m_LblAry[4] = m_Disp5;
-            m_LblAry[5] = m_Disp6;
-            m_LblAry[6] = m_Disp7;
-            m_LblAry[7] = m_Disp8;
-            m_LblAry[8] = m_Disp9;
+            _mLblAry[0] = m_Disp1;
+            _mLblAry[1] = m_Disp2;
+            _mLblAry[2] = m_Disp3;
+            _mLblAry[3] = m_Disp4;
+            _mLblAry[4] = m_Disp5;
+            _mLblAry[5] = m_Disp6;
+            _mLblAry[6] = m_Disp7;
+            _mLblAry[7] = m_Disp8;
+            _mLblAry[8] = m_Disp9;
 
             SetupSliders();   //Sliders Gnerieren
 
@@ -56,18 +59,18 @@ namespace vis1
         protected override void OnLoad(EventArgs e)
         {
             ConfigCommunication();
-            _cmp = new CommandParser(ph.binWr);
+            _cmp = new CommandParser(_ph.BinWr);
 
-            m_DispTimer.Interval = T_DISP;
+            m_DispTimer.Interval = Disp;
             m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = T_THREAD;
+            _decodeTimer.Interval = Thread;
             _decodeTimer.Enabled = true;
 
             CreateOnlineCurveWin();
             CreateVertWin();
 
-            _pnf = new PianoForm(ph.binWr);
-            _AddTextInvoker = this.AddText2ListBox;
+            _pnf = new PianoForm(_ph.BinWr);
+            _addTextInvoker = AddText2ListBox;
             // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
             base.OnLoad(e);
         }
@@ -81,8 +84,8 @@ namespace vis1
             // Thread.Sleep(100);
             // _decoderThr.Join();
 
-            ph.Close();
-            m_SerPort.Close();
+            _ph.Close();
+            _mSerPort.Close();
             base.OnFormClosing(e);
         }
 
@@ -90,21 +93,21 @@ namespace vis1
         {
             if (acqOnOffMenuItem.Checked)
             {
-                m_SerPort.DiscardInBuffer();
-                Thread.Sleep(200);
+                _mSerPort.DiscardInBuffer();
+                System.Threading.Thread.Sleep(200);
 
-                ph.SwitchAcq(true);
-                ph.Flush();
+                _ph.SwitchAcq(true);
+                _ph.Flush();
 
                 // m_DispTimer.Enabled = true;
                 // stw.Reset(); stw.Start();
             }
             else
             {
-                ph.SwitchAcq(false);
-                ph.Flush();
+                _ph.SwitchAcq(false);
+                _ph.Flush();
 
-                Thread.Sleep(200);
+                System.Threading.Thread.Sleep(200);
                 // m_SerPort.DiscardInBuffer();
                 // m_DispTimer.Enabled = false;
                 // stw.Stop();
@@ -113,7 +116,7 @@ namespace vis1
 
         void OnEmptyReceiveBufferMenue(object sender, EventArgs e)  //Empty ReciveBuffer
         {
-            m_SerPort.DiscardInBuffer();
+            _mSerPort.DiscardInBuffer();
         }
 
         void OnClearMessagesMenue(object sender, EventArgs e)   //Clear Messages
@@ -148,36 +151,36 @@ namespace vis1
 
         void OnDecodeTimer(object sender, EventArgs e)
         {
-            if (ph.ParseAllPackets())
+            if (_ph.ParseAllPackets())
                 _doDisplay = true;
         }
 
-        void DecoderThreadLoop()
+        /*void DecoderThreadLoop()
         {
             while (_doDecode)
             {
-                Thread.Sleep(T_THREAD);
-                if (ph.ParseAllPackets())
+                System.Threading.Thread.Sleep(Thread);
+                if (_ph.ParseAllPackets())
                     _doDisplay = true;
             }
             _doDisplay = false;
-            ph.SwitchAcq(false);
-            ph.Flush();
-        }
+            _ph.SwitchAcq(false);
+            _ph.Flush();
+        }*/
 
         void DisplayValues()
         {
-            for (int i = 0; i < ph.NVals; i++)
+            for (int i = 0; i < _ph.NVals; i++)
             {
                 /* if (i == 8)
                   DisplayLineBits();
                 else */
-                m_LblAry[i].Text = String.Format("{0:F2}", ph.vf[i]);
+                _mLblAry[i].Text = $@"{_ph.Vf[i]:F2}";
             }
             if (_vbw.Visible)
             {
-                for (int i = 0; i < ph.NVals; i++)
-                    _vbw.SetBarValue(i, ph.vf[i]);
+                for (int i = 0; i < _ph.NVals; i++)
+                    _vbw.SetBarValue(i, _ph.Vf[i]);
                 _vbw.InvalidateGraph();
             }
             if (_ow.Visible)
@@ -188,7 +191,7 @@ namespace vis1
             }
         }
 
-        void DisplayLineBits()
+        /*void DisplayLineBits()
         {
             /* short val = (short)ph.vf[8];
             if ( val==0 )
@@ -200,15 +203,12 @@ namespace vis1
               else
                 _bitTxt[2 * i] = '0';
             }
-            m_LblAry[8].Text = _bitTxt; */
-        }
+            m_LblAry[8].Text = _bitTxt;
+        }*/
 
         void ToggleAcq()
         {
-            if (acqOnOffMenuItem.Checked)
-                acqOnOffMenuItem.Checked = false;
-            else
-                acqOnOffMenuItem.Checked = true;
+            acqOnOffMenuItem.Checked = !acqOnOffMenuItem.Checked;
             OnAcqOnOffMenue(null, null);
         }
 
@@ -250,7 +250,9 @@ namespace vis1
             // m_BinWr.WriteSv16((byte)id, val);
             ph.binWr.Flush(); */
         }
-
+        /*!
+         * Toggeln des Keyboard-Winows
+         */
         void OnKeyBoardMenue(object sender, EventArgs e)    //Toggle Keyboard Window
         {
             if (keyBoardMenuItem.Checked)
@@ -260,6 +262,9 @@ namespace vis1
                 _pnf.Hide();    //Hide Keyboard window
         }
 
+        /*!
+         * Toggeln des Curve-Windows
+         */
         void OnCurveWinOnOffMenue(object sender, EventArgs e) //Toggle Curve Window
         {
             if (curveWinMenuItem.Checked)
@@ -269,6 +274,9 @@ namespace vis1
                 _ow.Hide(); //Hide Curve window
         }
 
+        /*!
+         * Toggeln des Bar-Windows
+         */
         void OnBarWinMenue(object sender, EventArgs e)  //Toggle Bar Window
         {
             if (barWinMenuItem.Checked)
