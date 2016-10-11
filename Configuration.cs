@@ -21,15 +21,35 @@ namespace vis1
 
         void ConfigCommunication()
         {
-            string comport = Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:", "COM-Schnittstelle", "COM3"); //Auswahldialog der Serieller Schnitstelle
-            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One); //Konfiguration der Seriellenn Schnitstelle
+            // Get a list of serial port names.
+            string[] ports = SerialPort.GetPortNames();
 
-            m_SerPort.ReadBufferSize = 20 * 1024; //Lesebuffer definieren
-            m_SerPort.Open(); //Serielle verbindung öffnen
+            // Port names zeilenweise in string scheiben
+            System.Text.StringBuilder sbportlist = new System.Text.StringBuilder();
+            foreach (string port in ports)
+            {
+                sbportlist.AppendLine(port);
+            }
+            string portlist = sbportlist.ToString();
+            if (portlist.Length != 0)
+            {
+                //Dialog zur abfrage des Ports
+                var comport =
+                    Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
+                    "COM-Schnittstelle", ports[0]);
+                //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
+                m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
 
-            // ph = new SvIdProtocolHandler(m_SerPort, this);
-            ph = new SvIdProtocolHandler3(m_SerPort, this);
-            // ph = new HPerfProtocolHandler(m_SerPort, this);
+                m_SerPort.Open(); //Serielle verbindung öffnen
+
+                // ph = new SvIdProtocolHandler(m_SerPort, this);
+                ph = new SvIdProtocolHandler3(m_SerPort, this);
+                // ph = new HPerfProtocolHandler(m_SerPort, this);
+            }
+            else
+            {
+                MessageBox.Show("No Serial Ports available", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+            }
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
