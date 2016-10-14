@@ -13,10 +13,10 @@ namespace vis1
     partial class VisForm3
     {
         #region Timing
-        const double F_SAMPLE = 100;
-        const double T_SAMPLE = 1 / F_SAMPLE;
-        const int T_DISP = 100;  // milliSec
-        const int T_THREAD = 20; // milliSec
+        private const double F_SAMPLE = 100;
+        private const double T_SAMPLE = 1 / F_SAMPLE;
+        private const int T_DISP = 100;  // milliSec
+        private const int T_THREAD = 20; // milliSec
         #endregion
 
         bool ConfigCommunication()
@@ -52,7 +52,7 @@ namespace vis1
             }
             else
             {
-                MessageBox.Show(@"No Serial Ports available", @"My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+                MessageBox.Show("No Serial Ports available", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
 
                 return false;
             }
@@ -86,7 +86,7 @@ namespace vis1
             // ph.ivs[4] = _olc.SetCurve2(4, "s4", Color.Pink, false, T_SAMPLE);
 
             _olc.AxisChange();
-            _olc.AddKeyEventHandler(new KeyEventHandler(OnKeyDownOnGraph));
+            _olc.AddKeyEventHandler(OnKeyDownOnGraph);
         }
 
         void CreateVertWin()    //Bar Window generiern
