@@ -86,7 +86,7 @@ namespace vis1
             // ph.ivs[4] = _olc.SetCurve2(4, "s4", Color.Pink, false, T_SAMPLE);
 
             _olc.AxisChange();
-            _olc.AddKeyEventHandler(new KeyEventHandler(OnKeyDownOnGraph));
+            _olc.AddKeyEventHandler(OnKeyDownOnGraph);
         }
 
         void CreateVertWin()    //Bar Window generiern

@@ -63,7 +63,7 @@ namespace vis1
             if (stw.ElapsedMilliseconds > 1000) //nach einer Sekunde
             {
                 stw.Stop();     //Stopuhr anhalten
-                valsPerSec = (double)m_valSum / ((double)stw.ElapsedMilliseconds / 1000.0); //Berechnen der Werte pro Sekunde
+                valsPerSec = m_valSum / (stw.ElapsedMilliseconds / 1000.0); //Berechnen der Werte pro Sekunde
                 m_valSum = 0; stw.Reset(); stw.Start(); //Wertezähler und Stopuhr zurücksetzen
                 return true;
             }
@@ -200,7 +200,7 @@ namespace vis1
 
     class SvIdProtocolHandler3 : SvIdProtocolHandler
     {
-        const float C1 = (float)1.0 / (float)Int16.MaxValue;
+        const float C1 = (float)1.0 / Int16.MaxValue;
 
         public SvIdProtocolHandler3(SerialPort aPort, IPrintCB aPrintObj)
           : base(aPort, aPrintObj)
@@ -221,7 +221,7 @@ namespace vis1
             {
                 i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
 
-                ///CHANGE: continue mit else if ersetzt!
+                //CHANGE: continue mit else if ersetzt!
                 if (i == 9) //ID 9: string SV
                 {
                     _printCB.DoPrint(m_BinRd.ReadCString());

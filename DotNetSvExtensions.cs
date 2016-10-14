@@ -21,7 +21,7 @@ namespace vis1
 
             while (true)
             {
-                ch = this.ReadByte();   //Lesen von 1 Byte
+                ch = ReadByte();   //Lesen von 1 Byte
 
                 if (ch == 0)    //Lesen bis Zeichen 0x0 eingelesen wird
                 {
@@ -38,13 +38,13 @@ namespace vis1
         // 1.11 Format
         public float Read1p11()
         {
-            return (float)this.ReadInt16() / 2048;
+            return (float)ReadInt16() / 2048;
         }
 
         // 3.13 Format
         public float Read3p13()
         {
-            return (float)this.ReadInt16() / 8192;
+            return (float)ReadInt16() / 8192;
         }
     }
 
@@ -57,8 +57,8 @@ namespace vis1
 
         public void WriteSv16(byte aId, short aVal)
         {
-            this.Write(aId);  //Sende ID
-            this.Write(aVal); //Sende 2Byte Daten
+            Write(aId);  //Sende ID
+            Write(aVal); //Sende 2Byte Daten
                               /* this.Write((byte)aVal); // LB
                               this.Write((byte)(aVal >> 8)); // HB */
 
@@ -67,13 +67,12 @@ namespace vis1
 
     class TrackBarEx : TrackBar
     {
-        int m_LastVal = 0;
-        public bool barWasMoved = false;
+        int m_LastVal; // = 0;
+        public bool barWasMoved; // = false;
 
-        public TrackBarEx()
-          : base()
+        /*public TrackBarEx() : base()
         {
-        }
+        }*/
 
         protected override void OnValueChanged(EventArgs e)
         {
@@ -83,12 +82,12 @@ namespace vis1
 
         public bool BarValueChanged()
         {
-            return (this.Value != m_LastVal);
+            return (Value != m_LastVal);
         }
 
         public short GetValue()
         {
-            m_LastVal = this.Value;
+            m_LastVal = Value;
             return (short)m_LastVal;
         }
     }
@@ -117,12 +116,12 @@ namespace vis1
                     short sv = (short)obj;
                     _binWr.Write((byte)sv); first = false;
                 }
-                else if (obj.GetType() == typeof(Int32))
+                else if (obj is int)
                 {
                     Int32 v32 = (Int32)obj;
                     _binWr.Write(v32);
                 }
-                else if (obj.GetType() == typeof(float))
+                else if (obj is float)
                 {
                     float fv = (float)obj;
                     _binWr.Write(fv);

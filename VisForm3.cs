@@ -25,7 +25,7 @@ namespace vis1
         #endregion
 
         #region Decoder Thread
-        bool _doDisplay = false;
+        bool _doDisplay; // = false;
         //bool _doDecode = true;
 
         //Thread _decoderThr; //WARNING: never used
