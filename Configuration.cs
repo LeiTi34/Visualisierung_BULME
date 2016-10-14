@@ -60,15 +60,16 @@ namespace vis1
             _olc.buffSize = (int)(20 * F_SAMPLE);
 
             //Skalierungen
-            _olc.SetY1Scale(false, -200, 300);    //Skalierung der liken Y-Achse (Y1)
-            _olc.SetY2Scale(false, -1000, 2000);  //Skalierung der rechten Y-Achse (Y2)
-            _olc.SetXScale(false, 10, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse
+            _olc.SetY1Scale(false, -100, 100);    //Skalierung der liken Y-Achse (Y1)
+            _olc.SetY2Scale(false, -1000, 1000);  //Skalierung der rechten Y-Achse (Y2)
+//            _olc.SetXScale(false, 10, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
+            _olc.SetXScale(false, 0, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
 
 
-            //_olc.SetCurve( <Index>, <Name>, <Color>, <Y2>, <?> )
-            ph.ivs[0] = _olc.SetCurve2(0, "S1", Color.Red, false, T_SAMPLE);  //Zeichnet Wert 1, in rot, in den Graph
-            ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, false, T_SAMPLE); //Zeichnet Wert 2, in blau, in den Graph
-            ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Green, true, T_SAMPLE);//Zeichnet Wert 2, in grün, in den Graph
+            //        _olc.SetCurve(<ID>, <Na>, <Color>,     <Y2>,         )
+            ph.ivs[0] = _olc.SetCurve2(0, "S1", Color.Red,  false, T_SAMPLE); //Zeichnet Wert 1, in rot, in den Graph
+            ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, true, T_SAMPLE); //Zeichnet Wert 2, in blau, in den Graph
+           // ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Green, true, T_SAMPLE); //Zeichnet Wert 2, in grün, in den Graph
 
             // ph.ivs[3] = _olc.SetCurve2(3, "S4", Color.Orange, false, T_SAMPLE);    //Zeichnet Wert 4, in orange, in den Graph
             // ph.ivs[4] = _olc.SetCurve2(4, "S5", Color.Pink, false, T_SAMPLE);  //Zeichnet Wert 5, in pink, in den Graph

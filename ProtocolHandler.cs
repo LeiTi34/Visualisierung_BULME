@@ -56,7 +56,7 @@ namespace vis1
             for (int i = 0; i < ivs.Length; i++)
                 ivs[i] = new DummyValueSink();
             stw.Reset(); stw.Start(); //Stopuhr neustarten
-        }
+        } 
 
         public bool CheckValsPerSecond()    //Zählt werte pro Sekunde
         {
