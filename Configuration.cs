@@ -19,43 +19,33 @@ namespace vis1
         private const int T_THREAD = 20; // milliSec
         #endregion
 
-        bool ConfigCommunication()
+        void ConfigCommunication()
         {
             // Get a list of serial port names.
-            string[] ports = SerialPort.GetPortNames();
+            var ports = SerialPort.GetPortNames();
 
             // Port names zeilenweise in string scheiben
             System.Text.StringBuilder sbportlist = new System.Text.StringBuilder();
-            foreach (string port in ports)
+            foreach (var port in ports)
             {
                 sbportlist.AppendLine(port.Length >= 3 ? port.Remove(4, port.Length - 4) : port);
             }
             string portlist = sbportlist.ToString();
-            if (portlist.Length >= 6)
-            {
-                //TODO: ListBox statt InputBox
-                //Dialog zur abfrage des Ports
-                var comport =
-                    Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
-                    "COM-Schnittstelle", ports[0].Length >= 3 ? ports[0].Remove(4, ports[0].Length - 4) : ports[0]);
 
-               //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
-               m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
+            //TODO: ListBox statt InputBox
+            //Dialog zur abfrage des Ports
+            var comport =
+                Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
+                "COM-Schnittstelle", ports[0].Length >= 3 ? ports[0].Remove(4, ports[0].Length - 4) : ports[0]);
 
-                m_SerPort.Open(); //Serielle verbindung öffnen
+            //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
+            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) { ReadBufferSize = 20 * 1024 };
 
-                // ph = new SvIdProtocolHandler(m_SerPort, this);
-                ph = new SvIdProtocolHandler3(m_SerPort, this);
-                // ph = new HPerfProtocolHandler(m_SerPort, this);
+            m_SerPort.Open(); //Serielle verbindung öffnen
 
-                return true;
-            }
-            else
-            {
-                MessageBox.Show("No Serial Ports available", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
-
-                return false;
-            }
+            // ph = new SvIdProtocolHandler(m_SerPort, this);
+            ph = new SvIdProtocolHandler3(m_SerPort, this);
+            // ph = new HPerfProtocolHandler(m_SerPort, this);
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default

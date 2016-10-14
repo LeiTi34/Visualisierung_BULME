@@ -36,48 +36,41 @@ namespace vis1
 
         public VisForm3()
         {
-            if (InitializeComponent())
-            {
+            InitializeComponent();
 
-                m_LblAry[0] = m_Disp1;
-                m_LblAry[1] = m_Disp2;
-                m_LblAry[2] = m_Disp3;
-                m_LblAry[3] = m_Disp4;
-                m_LblAry[4] = m_Disp5;
-                m_LblAry[5] = m_Disp6;
-                m_LblAry[6] = m_Disp7;
-                m_LblAry[7] = m_Disp8;
-                m_LblAry[8] = m_Disp9;
+            m_LblAry[0] = m_Disp1;
+            m_LblAry[1] = m_Disp2;
+            m_LblAry[2] = m_Disp3;
+            m_LblAry[3] = m_Disp4;
+            m_LblAry[4] = m_Disp5;
+            m_LblAry[5] = m_Disp6;
+            m_LblAry[6] = m_Disp7;
+            m_LblAry[7] = m_Disp8;
+            m_LblAry[8] = m_Disp9;
 
-                SetupSliders(); //Sliders Gnerieren
+            SetupSliders();   //Sliders Gnerieren
 
-                //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
-            }
+            //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
         }
 
         protected override void OnLoad(EventArgs e)
         {
-            if (ConfigCommunication())
-            {
-                _cmp = new CommandParser(ph.binWr);
+            ConfigCommunication();
 
-                m_DispTimer.Interval = T_DISP;
-                m_DispTimer.Enabled = true;
-                _decodeTimer.Interval = T_THREAD;
-                _decodeTimer.Enabled = true;
+            _cmp = new CommandParser(ph.binWr);
 
-                CreateOnlineCurveWin();
-                CreateVertWin();
+            m_DispTimer.Interval = T_DISP;
+            m_DispTimer.Enabled = true;
+            _decodeTimer.Interval = T_THREAD;
+            _decodeTimer.Enabled = true;
 
-                _pnf = new PianoForm(ph.binWr);
-                //_AddTextInvoker = this.AddText2ListBox;
-                // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
-                base.OnLoad(e);
-            }
-           /* else
-            {
+            CreateOnlineCurveWin();
+            CreateVertWin();
 
-            }*/
+            _pnf = new PianoForm(ph.binWr);
+            //_AddTextInvoker = this.AddText2ListBox;
+            // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
+            base.OnLoad(e);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
