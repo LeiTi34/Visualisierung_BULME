@@ -33,6 +33,7 @@ namespace vis1
             string portlist = sbportlist.ToString();
             if (portlist.Length >= 6)
             {
+                //TODO: ListBox statt InputBox
                 //Dialog zur abfrage des Ports
                 var comport =
                     Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,

@@ -222,6 +222,7 @@ namespace vis1
         {
             // _msg = aTxt;
             // this.Invoke(_AddTextInvoker);
+            //TODO: Zeichen zählen statt Zeilen
             if (aTxt.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
             {
                 m_MsgLb.Items.Add(aTxt);
@@ -252,6 +253,7 @@ namespace vis1
                 ToggleAcq();
         }
 
+        //TODO: Absturz bei send Command, Send Button
         void OnSendEditKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyValue == 72)
