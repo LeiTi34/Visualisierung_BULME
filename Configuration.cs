@@ -1,10 +1,10 @@
 
-using System;
+//using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Threading;
+//using System.Threading;
 using System.IO.Ports;
-using System.IO;
+//using System.IO;
 // using System.Diagnostics;
 using ZedHL;
 
@@ -19,7 +19,7 @@ namespace vis1
         const int T_THREAD = 20; // milliSec
         #endregion
 
-        void ConfigCommunication()
+        bool ConfigCommunication()
         {
             // Get a list of serial port names.
             string[] ports = SerialPort.GetPortNames();
@@ -28,27 +28,32 @@ namespace vis1
             System.Text.StringBuilder sbportlist = new System.Text.StringBuilder();
             foreach (string port in ports)
             {
-                sbportlist.AppendLine(port);
+                sbportlist.AppendLine(port.Length >= 3 ? port.Remove(4, port.Length - 4) : port);
             }
             string portlist = sbportlist.ToString();
-            if (portlist.Length != 0)
+            if (portlist.Length >= 6)
             {
                 //Dialog zur abfrage des Ports
                 var comport =
                     Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
-                    "COM-Schnittstelle", ports[0]);
-                //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
-                m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
+                    "COM-Schnittstelle", ports[0].Length >= 3 ? ports[0].Remove(4, ports[0].Length - 4) : ports[0]);
+
+               //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
+               m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
 
                 m_SerPort.Open(); //Serielle verbindung öffnen
 
                 // ph = new SvIdProtocolHandler(m_SerPort, this);
                 ph = new SvIdProtocolHandler3(m_SerPort, this);
                 // ph = new HPerfProtocolHandler(m_SerPort, this);
+
+                return true;
             }
             else
             {
-                MessageBox.Show("No Serial Ports available", "My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+                MessageBox.Show(@"No Serial Ports available", @"My Application", MessageBoxButtons.OKCancel, MessageBoxIcon.Asterisk);
+
+                return false;
             }
         }
 

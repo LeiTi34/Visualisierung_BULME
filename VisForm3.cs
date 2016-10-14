@@ -1,9 +1,9 @@
 using System;
-using System.Drawing;
+//using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 using System.IO.Ports;
-using System.IO;
+//using System.IO;
 // using System.Diagnostics;
 using ZedHL;
 
@@ -26,12 +26,12 @@ namespace vis1
 
         #region Decoder Thread
         bool _doDisplay = false;
-        bool _doDecode = true;
+        //bool _doDecode = true;
 
         //Thread _decoderThr; //WARNING: never used
-        string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
+        //string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
 
-        MethodInvoker _AddTextInvoker;
+       // MethodInvoker _AddTextInvoker;
         #endregion
 
         public VisForm3()
@@ -55,21 +55,27 @@ namespace vis1
 
         protected override void OnLoad(EventArgs e)
         {
-            ConfigCommunication();
-            _cmp = new CommandParser(ph.binWr);
+            if (ConfigCommunication())
+            {
+                _cmp = new CommandParser(ph.binWr);
 
-            m_DispTimer.Interval = T_DISP;
-            m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = T_THREAD;
-            _decodeTimer.Enabled = true;
+                m_DispTimer.Interval = T_DISP;
+                m_DispTimer.Enabled = true;
+                _decodeTimer.Interval = T_THREAD;
+                _decodeTimer.Enabled = true;
 
-            CreateOnlineCurveWin();
-            CreateVertWin();
+                CreateOnlineCurveWin();
+                CreateVertWin();
 
-            _pnf = new PianoForm(ph.binWr);
-            _AddTextInvoker = this.AddText2ListBox;
-            // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
-            base.OnLoad(e);
+                _pnf = new PianoForm(ph.binWr);
+                //_AddTextInvoker = this.AddText2ListBox;
+                // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
+                base.OnLoad(e);
+            }
+           /* else
+            {
+
+            }*/
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -152,7 +158,7 @@ namespace vis1
                 _doDisplay = true;
         }
 
-        void DecoderThreadLoop()
+        /*void DecoderThreadLoop()
         {
             while (_doDecode)
             {
@@ -163,7 +169,7 @@ namespace vis1
             _doDisplay = false;
             ph.SwitchAcq(false);
             ph.Flush();
-        }
+        }*/
 
         void DisplayValues()
         {
@@ -188,9 +194,9 @@ namespace vis1
             }
         }
 
-        void DisplayLineBits()
+        /*void DisplayLineBits()
         {
-            /* short val = (short)ph.vf[8];
+            short val = (short)ph.vf[8];
             if ( val==0 )
               return;
             for (int i = 0; i < 6; i++)
@@ -200,8 +206,8 @@ namespace vis1
               else
                 _bitTxt[2 * i] = '0';
             }
-            m_LblAry[8].Text = _bitTxt; */
-        }
+            m_LblAry[8].Text = _bitTxt; 
+        }*/
 
         void ToggleAcq()
         {
@@ -216,15 +222,29 @@ namespace vis1
         {
             // _msg = aTxt;
             // this.Invoke(_AddTextInvoker);
-            m_MsgLb.Items.Add(aTxt);
+            if (aTxt.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
+            {
+                m_MsgLb.Items.Add(aTxt);
+            }
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
+            if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
+            {
+                m_MsgLb.Items.RemoveAt(0);
+            }
         }
 
-        void AddText2ListBox()
+        /*void AddText2ListBox()
         {
-            m_MsgLb.Items.Add(_msg);
+            if (_msg.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
+            {
+                m_MsgLb.Items.Add(_msg);
+            }
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
-        }
+            if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
+            {
+                m_MsgLb.Items.RemoveAt(0);
+            }
+        }*/
 
         void OnKeyDownOnGraph(object sender, KeyEventArgs e)
         {

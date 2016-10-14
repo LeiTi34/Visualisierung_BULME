@@ -2,7 +2,7 @@
 using System;
 // using System.Text;
 using System.IO.Ports;
-using System.IO;
+//using System.IO;
 using System.Diagnostics;
 using ZedHL;
 
@@ -14,11 +14,11 @@ namespace vis1
         q15 = 1,
     }
 
-    class Scaling2
+    /*class Scaling2
     {
         public const float q15 = (float)1.0 / (float)Int16.MaxValue;
         public const float q11 = (float)1.0 / (float)2048;
-    }
+    }*/
 
     public interface IPrintCB
     {
