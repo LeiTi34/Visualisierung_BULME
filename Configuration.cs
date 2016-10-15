@@ -1,7 +1,9 @@
 
 //using System;
+
+using System.Configuration;
 using System.Drawing;
-using System.Windows.Forms;
+//using System.Windows.Forms;
 //using System.Threading;
 using System.IO.Ports;
 //using System.IO;
@@ -19,6 +21,7 @@ namespace vis1
         private const int T_THREAD = 20; // milliSec
         #endregion
 
+        //Konfigurationsdialog zur Auswahl eines COM-Ports
         void ConfigCommunication()
         {
             // Get a list of serial port names.
@@ -49,6 +52,21 @@ namespace vis1
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
+
+        //Read Settings Method, not working
+        /*static string ReadSetting(string key)
+        {
+            try
+            {
+                var appSettings = ConfigurationManager.AppSettings;
+                var result = appSettings[key] ?? "Not Found";
+                return result;
+            }
+            catch (ConfigurationErrorsException)
+            {
+                return -1;
+            }
+        }*/
         void CreateOnlineCurveWin() //Gennerieren des Curve Windows  
         {
             _ow = new OnlineCurveWin3();
@@ -62,6 +80,7 @@ namespace vis1
             _olc.SetXScale(false, 0, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
 
 
+            //TODO: Auslagern in Config-File
             //        _olc.SetCurve(<ID>, <Na>, <Color>,     <Y2>,         )
             ph.ivs[0] = _olc.SetCurve2(0, "S1", Color.Red,  false, T_SAMPLE); //Zeichnet Wert 1, in rot, in den Graph
             ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, true, T_SAMPLE); //Zeichnet Wert 2, in blau, in den Graph
@@ -70,10 +89,10 @@ namespace vis1
             // ph.ivs[3] = _olc.SetCurve2(3, "S4", Color.Orange, false, T_SAMPLE);    //Zeichnet Wert 4, in orange, in den Graph
             // ph.ivs[4] = _olc.SetCurve2(4, "S5", Color.Pink, false, T_SAMPLE);  //Zeichnet Wert 5, in pink, in den Graph
 
-            // ph.ivs[1] = _olc.SetCurve2(1, "s2", Color.Blue, false, T_SAMPLE);
-            // ph.ivs[2] = _olc.SetCurve2(2, "s3", Color.Orange, false, T_SAMPLE);
-            // ph.ivs[3] = _olc.SetCurve2(3, "s4", Color.Pink, false, T_SAMPLE);
-            // ph.ivs[4] = _olc.SetCurve2(4, "s4", Color.Pink, false, T_SAMPLE);
+            // ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, false, T_SAMPLE);
+            // ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Orange, false, T_SAMPLE);
+            // ph.ivs[3] = _olc.SetCurve2(3, "S4", Color.Pink, false, T_SAMPLE);
+            // ph.ivs[4] = _olc.SetCurve2(4, "S4", Color.Pink, false, T_SAMPLE);
 
             _olc.AxisChange();
             _olc.AddKeyEventHandler(OnKeyDownOnGraph);
