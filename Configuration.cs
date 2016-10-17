@@ -1,7 +1,6 @@
-
-//using System;
-
+using System;
 using System.Configuration;
+using System.Collections.Specialized;
 using System.Drawing;
 //using System.Windows.Forms;
 //using System.Threading;
@@ -9,6 +8,7 @@ using System.IO.Ports;
 //using System.IO;
 // using System.Diagnostics;
 using ZedHL;
+using System.ComponentModel;
 
 namespace vis1
 {
@@ -53,38 +53,49 @@ namespace vis1
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
 
-        //Read Settings Method, not working
-        /*static string ReadSetting(string key)
-        {
-            try
-            {
-                var appSettings = ConfigurationManager.AppSettings;
-                var result = appSettings[key] ?? "Not Found";
-                return result;
-            }
-            catch (ConfigurationErrorsException)
-            {
-                return -1;
-            }
-        }*/
         void CreateOnlineCurveWin() //Gennerieren des Curve Windows  
         {
             _ow = new OnlineCurveWin3();
             _olc = _ow.olc;
             _olc.buffSize = (int)(20 * F_SAMPLE);
 
-            //Skalierungen
-            _olc.SetY1Scale(false, -100, 100);    //Skalierung der liken Y-Achse (Y1)
-            _olc.SetY2Scale(false, -1000, 1000);  //Skalierung der rechten Y-Achse (Y2)
-//            _olc.SetXScale(false, 10, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
-            _olc.SetXScale(false, 0, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
-
-
             //TODO: Auslagern in Config-File
-            //        _olc.SetCurve(<ID>, <Na>, <Color>,     <Y2>,         )
-            ph.ivs[0] = _olc.SetCurve2(0, "S1", Color.Red,  false, T_SAMPLE); //Zeichnet Wert 1, in rot, in den Graph
-            ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, true, T_SAMPLE); //Zeichnet Wert 2, in blau, in den Graph
-           // ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Green, true, T_SAMPLE); //Zeichnet Wert 2, in grün, in den Graph
+            //Skalierungen von app.conf file einlesen und setzen
+            _olc.SetY1Scale(false,  //Y1-Axis
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1min")),
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1max")));
+            _olc.SetY2Scale(false,  //Y2-Axis
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2min")),
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2max")));
+            _olc.SetXScale(false,   //X-Axis
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin")),
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"))); 
+
+            //olc.SetCurve(<ID>, <Na>, <Color>, <Y2>, )
+            for (var track = 0; track < 10; track++)    //Track 1...5
+            {
+                if (Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Enable")))    //Enable von app.conf file Lesen
+                {
+                    //Werte aus app.conf file einlesen und dem richtigen Track zuweisen
+                    ph.ivs[track] = _olc.SetCurve2(
+                        track,  //ID
+                        ConfigurationManager.AppSettings.Get("S" + track + "Name"), //Name
+                        Color.FromName(ConfigurationManager.AppSettings.Get("S" + track + "Color")),    //Color
+                        Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Y2")),    //Y2-Axis
+                        T_SAMPLE);  //Sample-Rate
+                }
+            }
+
+            _olc.AxisChange();
+            _olc.AddKeyEventHandler(OnKeyDownOnGraph);
+
+            //_olc.SetY1Scale(false, -100, 100);    //Skalierung der liken Y-Achse (Y1)
+            //_olc.SetY2Scale(false, -1000, 1000);  //Skalierung der rechten Y-Achse (Y2)
+            // _olc.SetXScale(false, 10, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse 
+            //_olc.SetXScale(false, 0, 21); // 9.0-10.1  5-11  //Skalierung der X-Achse
+
+            // ph.ivs[1] = _olc.SetCurve2(1, "S2", Color.Blue, true, T_SAMPLE); //Zeichnet Wert 2, in blau, in den Graph
+            // ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Green, true, T_SAMPLE); //Zeichnet Wert 2, in grün, in den Graph
 
             // ph.ivs[3] = _olc.SetCurve2(3, "S4", Color.Orange, false, T_SAMPLE);    //Zeichnet Wert 4, in orange, in den Graph
             // ph.ivs[4] = _olc.SetCurve2(4, "S5", Color.Pink, false, T_SAMPLE);  //Zeichnet Wert 5, in pink, in den Graph
@@ -93,9 +104,6 @@ namespace vis1
             // ph.ivs[2] = _olc.SetCurve2(2, "S3", Color.Orange, false, T_SAMPLE);
             // ph.ivs[3] = _olc.SetCurve2(3, "S4", Color.Pink, false, T_SAMPLE);
             // ph.ivs[4] = _olc.SetCurve2(4, "S4", Color.Pink, false, T_SAMPLE);
-
-            _olc.AxisChange();
-            _olc.AddKeyEventHandler(OnKeyDownOnGraph);
         }
 
         void CreateVertWin()    //Bar Window generiern
