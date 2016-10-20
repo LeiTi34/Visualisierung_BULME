@@ -1,4 +1,3 @@
-
 namespace vis1
 {
   partial class VisForm3
@@ -55,6 +54,8 @@ namespace vis1
             this.m_Disp8 = new System.Windows.Forms.Label();
             this.m_Disp9 = new System.Windows.Forms.Label();
             this._decodeTimer = new System.Windows.Forms.Timer(this.components);
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,7 +65,7 @@ namespace vis1
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(6, 34);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(50, 16);
+            this.label1.Size = new System.Drawing.Size(48, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "Send:";
             // 
@@ -83,7 +84,7 @@ namespace vis1
             this.m_Disp1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp1.Location = new System.Drawing.Point(267, 45);
             this.m_Disp1.Name = "m_Disp1";
-            this.m_Disp1.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp1.Size = new System.Drawing.Size(50, 16);
             this.m_Disp1.TabIndex = 3;
             this.m_Disp1.Text = "V1111";
             // 
@@ -93,7 +94,7 @@ namespace vis1
             this.m_Disp2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp2.Location = new System.Drawing.Point(267, 76);
             this.m_Disp2.Name = "m_Disp2";
-            this.m_Disp2.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp2.Size = new System.Drawing.Size(50, 16);
             this.m_Disp2.TabIndex = 4;
             this.m_Disp2.Text = "V2222";
             // 
@@ -103,7 +104,7 @@ namespace vis1
             this.m_Disp3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp3.Location = new System.Drawing.Point(267, 107);
             this.m_Disp3.Name = "m_Disp3";
-            this.m_Disp3.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp3.Size = new System.Drawing.Size(50, 16);
             this.m_Disp3.TabIndex = 5;
             this.m_Disp3.Text = "V3333";
             // 
@@ -126,7 +127,8 @@ namespace vis1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.controMenuItem,
-            this.windowToolStripMenuItem});
+            this.windowToolStripMenuItem,
+            this.fileToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(501, 24);
@@ -214,7 +216,7 @@ namespace vis1
             this.m_Disp4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp4.Location = new System.Drawing.Point(267, 138);
             this.m_Disp4.Name = "m_Disp4";
-            this.m_Disp4.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp4.Size = new System.Drawing.Size(50, 16);
             this.m_Disp4.TabIndex = 16;
             this.m_Disp4.Text = "V4444";
             // 
@@ -224,7 +226,7 @@ namespace vis1
             this.m_Disp5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp5.Location = new System.Drawing.Point(267, 169);
             this.m_Disp5.Name = "m_Disp5";
-            this.m_Disp5.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp5.Size = new System.Drawing.Size(50, 16);
             this.m_Disp5.TabIndex = 17;
             this.m_Disp5.Text = "V5555";
             // 
@@ -234,7 +236,7 @@ namespace vis1
             this.m_Disp6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp6.Location = new System.Drawing.Point(267, 200);
             this.m_Disp6.Name = "m_Disp6";
-            this.m_Disp6.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp6.Size = new System.Drawing.Size(50, 16);
             this.m_Disp6.TabIndex = 18;
             this.m_Disp6.Text = "V6666";
             // 
@@ -253,7 +255,7 @@ namespace vis1
             this.m_Disp7.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp7.Location = new System.Drawing.Point(267, 231);
             this.m_Disp7.Name = "m_Disp7";
-            this.m_Disp7.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp7.Size = new System.Drawing.Size(50, 16);
             this.m_Disp7.TabIndex = 20;
             this.m_Disp7.Text = "V7777";
             // 
@@ -263,7 +265,7 @@ namespace vis1
             this.m_Disp8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp8.Location = new System.Drawing.Point(267, 262);
             this.m_Disp8.Name = "m_Disp8";
-            this.m_Disp8.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp8.Size = new System.Drawing.Size(50, 16);
             this.m_Disp8.TabIndex = 21;
             this.m_Disp8.Text = "V8888";
             // 
@@ -273,13 +275,28 @@ namespace vis1
             this.m_Disp9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_Disp9.Location = new System.Drawing.Point(268, 294);
             this.m_Disp9.Name = "m_Disp9";
-            this.m_Disp9.Size = new System.Drawing.Size(55, 16);
+            this.m_Disp9.Size = new System.Drawing.Size(50, 16);
             this.m_Disp9.TabIndex = 22;
             this.m_Disp9.Text = "V9999";
             // 
             // _decodeTimer
             // 
             this._decodeTimer.Tick += new System.EventHandler(this.OnDecodeTimer);
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToCSVToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // saveToCSVToolStripMenuItem
+            // 
+            this.saveToCSVToolStripMenuItem.Name = "saveToCSVToolStripMenuItem";
+            this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToCSVToolStripMenuItem.Text = "Save";
+            this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
             // 
             // VisForm3
             // 
@@ -337,6 +354,8 @@ namespace vis1
     private System.Windows.Forms.ToolStripMenuItem curveWinMenuItem;
     private System.Windows.Forms.ToolStripMenuItem keyBoardMenuItem;
     private System.Windows.Forms.ToolStripMenuItem barWinMenuItem;
-  }
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToCSVToolStripMenuItem;
+    }
 }
 

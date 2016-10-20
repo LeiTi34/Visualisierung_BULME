@@ -5,9 +5,9 @@ using System.Windows.Forms;
 
 namespace vis1
 {
-    class BinaryReaderEx : BinaryReader //Liest von Datenstrom (COM)
+    internal class BinaryReaderEx : BinaryReader //Liest von Datenstrom (COM)
     {
-        byte[] m_CString = new byte[50];
+        private byte[] m_CString = new byte[50];
 
         public BinaryReaderEx(Stream input)
           : base(input)
@@ -36,19 +36,19 @@ namespace vis1
         }
 
         // 1.11 Format
-        public float Read1p11()
+        public float Read1P11()
         {
             return (float)ReadInt16() / 2048;
         }
 
         // 3.13 Format
-        public float Read3p13()
+        public float Read3P13()
         {
             return (float)ReadInt16() / 8192;
         }
     }
 
-    class BinaryWriterEx : BinaryWriter
+    internal class BinaryWriterEx : BinaryWriter
     {
         public BinaryWriterEx(Stream input)     //Schreibt in Datenstrom (COM)
           : base(input)
@@ -65,10 +65,10 @@ namespace vis1
         }
     }
 
-    class TrackBarEx : TrackBar
+    internal class TrackBarEx : TrackBar
     {
-        int m_LastVal; // = 0;
-        public bool barWasMoved; // = false;
+        private int _mLastVal; // = 0;
+        public bool BarWasMoved; // = false;
 
         /*public TrackBarEx() : base()
         {
@@ -76,26 +76,26 @@ namespace vis1
 
         protected override void OnValueChanged(EventArgs e)
         {
-            barWasMoved = true;
+            BarWasMoved = true;
             base.OnValueChanged(e);
         }
 
         public bool BarValueChanged()
         {
-            return (Value != m_LastVal);
+            return (Value != _mLastVal);
         }
 
         public short GetValue()
         {
-            m_LastVal = Value;
-            return (short)m_LastVal;
+            _mLastVal = Value;
+            return (short)_mLastVal;
         }
     }
 
 
-    class CommandParser
+    internal class CommandParser
     {
-        BinaryWriter _binWr;
+        private BinaryWriter _binWr;
 
         public CommandParser(BinaryWriter aWr)
         {
@@ -135,7 +135,7 @@ namespace vis1
             _binWr.Flush();
         }
 
-        object Str2Val(string aTxt)
+        private object Str2Val(string aTxt)
         {
             int idx; string txt2;
 

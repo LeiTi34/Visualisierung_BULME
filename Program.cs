@@ -1,6 +1,5 @@
 using System;
 using System.IO.Ports;
-//using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace vis1

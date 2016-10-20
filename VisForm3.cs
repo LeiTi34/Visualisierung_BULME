@@ -1,10 +1,6 @@
 using System;
-//using System.Drawing;
 using System.Windows.Forms;
-using System.Threading;
 using System.IO.Ports;
-//using System.IO;
-// using System.Diagnostics;
 using ZedHL;
 
 namespace vis1
@@ -17,7 +13,7 @@ namespace vis1
         OnlineCurveWin3 _ow;
         OnlineCurveControl _olc;
         VertBarWin _vbw;
-        ProtocolHandler ph;
+        ProtocolHandler _ph;
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
         PianoForm _pnf;
@@ -57,17 +53,17 @@ namespace vis1
         {
             ConfigCommunication();
 
-            _cmp = new CommandParser(ph.binWr);
+            _cmp = new CommandParser(_ph.binWr);
 
-            m_DispTimer.Interval = T_DISP;
+            m_DispTimer.Interval = Disp;
             m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = T_THREAD;
+            _decodeTimer.Interval = Thread;
             _decodeTimer.Enabled = true;
 
             CreateOnlineCurveWin();
             CreateVertWin();
 
-            _pnf = new PianoForm(ph.binWr);
+            _pnf = new PianoForm(_ph.binWr);
             //_AddTextInvoker = this.AddText2ListBox;
             // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
             base.OnLoad(e);
@@ -82,7 +78,7 @@ namespace vis1
             // Thread.Sleep(100);
             // _decoderThr.Join();
 
-            ph.Close();
+            _ph.Close();
             m_SerPort.Close();
             base.OnFormClosing(e);
         }
@@ -92,20 +88,20 @@ namespace vis1
             if (acqOnOffMenuItem.Checked)
             {
                 m_SerPort.DiscardInBuffer();
-                Thread.Sleep(200);
+                System.Threading.Thread.Sleep(200);
 
-                ph.SwitchAcq(true);
-                ph.Flush();
+                _ph.SwitchAcq(true);
+                _ph.Flush();
 
                 // m_DispTimer.Enabled = true;
                 // stw.Reset(); stw.Start();
             }
             else
             {
-                ph.SwitchAcq(false);
-                ph.Flush();
+                _ph.SwitchAcq(false);
+                _ph.Flush();
 
-                Thread.Sleep(200);
+                System.Threading.Thread.Sleep(200);
                 // m_SerPort.DiscardInBuffer();
                 // m_DispTimer.Enabled = false;
                 // stw.Stop();
@@ -149,7 +145,7 @@ namespace vis1
 
         void OnDecodeTimer(object sender, EventArgs e)
         {
-            if (ph.ParseAllPackets())
+            if (_ph.ParseAllPackets())
                 _doDisplay = true;
         }
 
@@ -168,17 +164,17 @@ namespace vis1
 
         void DisplayValues()
         {
-            for (int i = 0; i < ph.NVals; i++)
+            for (int i = 0; i < _ph.NVals; i++)
             {
                 /* if (i == 8)
                   DisplayLineBits();
                 else */
-                m_LblAry[i].Text = String.Format("{0:F2}", ph.vf[i]);
+                m_LblAry[i].Text = String.Format("{0:F2}", _ph.vf[i]);
             }
             if (_vbw.Visible)
             {
-                for (int i = 0; i < ph.NVals; i++)
-                    _vbw.SetBarValue(i, ph.vf[i]);
+                for (int i = 0; i < _ph.NVals; i++)
+                    _vbw.SetBarValue(i, _ph.vf[i]);
                 _vbw.InvalidateGraph();
             }
             if (_ow.Visible)
@@ -293,6 +289,11 @@ namespace vis1
 
             else
                 _vbw.Hide();    //Hide Bar window
+        }
+
+        private void saveToCSVToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _ph.SaveToCsv();
         }
     }
 }
