@@ -8,6 +8,8 @@ namespace vis1
 {
     partial class VisForm3
     {
+        public int Xmin;
+        public int Xmax;
         #region Timing
         private const double FSample = 100;
         private const double Sample = 1 / FSample;
@@ -61,9 +63,11 @@ namespace vis1
             _olc.SetY2Scale(false,  //Y2-Axis
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2min")),
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2max")));
-            _olc.SetXScale(false,   //X-Axis
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin")),
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"))); 
+
+            //X-Axis
+            Xmin = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin"));
+            Xmax = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"));
+            _olc.SetXScale(false, Xmin, Xmax); 
 
             //olc.SetCurve(<ID>, <Name>, <Color>, <Y2>, )
             for (var track = 1; track <= 10; track++)    //Track 1...5

@@ -46,6 +46,13 @@ namespace vis1
             this.curveWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyBoardMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.barWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.osziToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setSingleShotValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.m_Disp4 = new System.Windows.Forms.Label();
             this.m_Disp5 = new System.Windows.Forms.Label();
             this.m_Disp6 = new System.Windows.Forms.Label();
@@ -54,8 +61,6 @@ namespace vis1
             this.m_Disp8 = new System.Windows.Forms.Label();
             this.m_Disp9 = new System.Windows.Forms.Label();
             this._decodeTimer = new System.Windows.Forms.Timer(this.components);
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -128,7 +133,8 @@ namespace vis1
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.controMenuItem,
             this.windowToolStripMenuItem,
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.osziToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(501, 24);
@@ -210,6 +216,61 @@ namespace vis1
             this.barWinMenuItem.Text = "BarWin On/Off";
             this.barWinMenuItem.Click += new System.EventHandler(this.OnBarWinMenue);
             // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToCSVToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // saveToCSVToolStripMenuItem
+            // 
+            this.saveToCSVToolStripMenuItem.Name = "saveToCSVToolStripMenuItem";
+            this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.saveToCSVToolStripMenuItem.Text = "Save";
+            this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
+            // 
+            // osziToolStripMenuItem
+            // 
+            this.osziToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setSingleShotValueToolStripMenuItem});
+            this.osziToolStripMenuItem.Name = "osziToolStripMenuItem";
+            this.osziToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.osziToolStripMenuItem.Text = "Oszi";
+            // 
+            // setSingleShotValueToolStripMenuItem
+            // 
+            this.setSingleShotValueToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setValueToolStripMenuItem,
+            this.resetToolStripMenuItem1,
+            this.enableToolStripMenuItem1});
+            this.setSingleShotValueToolStripMenuItem.Name = "setSingleShotValueToolStripMenuItem";
+            this.setSingleShotValueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setSingleShotValueToolStripMenuItem.Text = "Single Shot";
+            // 
+            // setValueToolStripMenuItem
+            // 
+            this.setValueToolStripMenuItem.Name = "setValueToolStripMenuItem";
+            this.setValueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setValueToolStripMenuItem.Text = "Set Value";
+            this.setValueToolStripMenuItem.Click += new System.EventHandler(this.setValueToolStripMenuItem_Click);
+            // 
+            // resetToolStripMenuItem1
+            // 
+            this.resetToolStripMenuItem1.Name = "resetToolStripMenuItem1";
+            this.resetToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.resetToolStripMenuItem1.Text = "Reset";
+            this.resetToolStripMenuItem1.Click += new System.EventHandler(this.resetToolStripMenuItem1_Click);
+            // 
+            // enableToolStripMenuItem1
+            // 
+            this.enableToolStripMenuItem1.CheckOnClick = true;
+            this.enableToolStripMenuItem1.Name = "enableToolStripMenuItem1";
+            this.enableToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.enableToolStripMenuItem1.Text = "Enable";
+            this.enableToolStripMenuItem1.Click += new System.EventHandler(this.enableToolStripMenuItem1_Click);
+            // 
             // m_Disp4
             // 
             this.m_Disp4.AutoSize = true;
@@ -283,21 +344,6 @@ namespace vis1
             // 
             this._decodeTimer.Tick += new System.EventHandler(this.OnDecodeTimer);
             // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveToCSVToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // saveToCSVToolStripMenuItem
-            // 
-            this.saveToCSVToolStripMenuItem.Name = "saveToCSVToolStripMenuItem";
-            this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.saveToCSVToolStripMenuItem.Text = "Save";
-            this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
-            // 
             // VisForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -356,6 +402,11 @@ namespace vis1
     private System.Windows.Forms.ToolStripMenuItem barWinMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToCSVToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem osziToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setSingleShotValueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setValueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem1;
     }
 }
 

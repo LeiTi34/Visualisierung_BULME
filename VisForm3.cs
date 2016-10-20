@@ -22,12 +22,12 @@ namespace vis1
 
         #region Decoder Thread
         bool _doDisplay; // = false;
-        //bool _doDecode = true;
+                         //bool _doDecode = true;
 
         //Thread _decoderThr; //WARNING: never used
         //string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
 
-       // MethodInvoker _AddTextInvoker;
+        // MethodInvoker _AddTextInvoker;
         #endregion
 
         public VisForm3()
@@ -294,6 +294,39 @@ namespace vis1
         private void saveToCSVToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _ph.SaveToCsv();
+        }
+
+        private void enableToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            _ph.SingleShotEnabled = !_ph.SingleShotEnabled;
+        }
+
+        private void setValueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO: DIalog verbessern SSSetValue
+            /*SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+            sssv.Show();
+            _ph.SingleShotChannel = sssv.SingleShotChannel;
+            _ph.SingleShotTrigger = sssv.SingleShotTrigger;*/
+
+            SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+
+            // Show testDialog as a modal dialog and determine if DialogResult = OK.
+            if (sssv.ShowDialog(this) == DialogResult.OK)
+            {
+                // Read the contents of testDialog's TextBox.
+                _ph.SingleShotChannel = sssv.SingleShotChannel;
+                _ph.SingleShotTrigger = sssv.SingleShotTrigger;
+            }
+            else
+            { }
+            sssv.Dispose();
+
+        }
+
+        private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            //TODO: Reset Method
         }
     }
 }
