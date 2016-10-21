@@ -114,14 +114,15 @@ namespace vis1
             _sb.ms[3].Text = "ModDev"; */
         }
 
+        //TODO: Slider Wert senden
         public void OnValChanged(int aId, MSlider aSlider) // SliderCB  //Slider Wert senden
         {
-            if (aId == 0)
+            /*if (aId == 0)
             {
                 // ph.binWr.WriteSv16((byte)2, (short)aSlider.val);
                 _ph.binWr.Write((byte)6);   //ID 6
                 _ph.binWr.Write((float)aSlider.val); //Slider wert als float auf COM schreiben
-            }
+            }*/
 
             /* aId += 2;
             if (aId >= 2 && aId <= 5)
@@ -131,7 +132,7 @@ namespace vis1
               ph.binWr.Write((float)aSlider.val);
             } */
 
-            _ph.binWr.Flush();
+            //_ph.binWr.Flush();
         }
 
         public void OnMoseUp(int aId, MSlider aSlider) // SliderCB

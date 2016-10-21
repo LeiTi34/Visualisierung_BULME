@@ -213,11 +213,10 @@ namespace vis1
         {
             // _msg = aTxt;
             // this.Invoke(_AddTextInvoker);
-            //TODO: Zeichen zählen statt Zeilen
-            if (aTxt.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
-            {
-                m_MsgLb.Items.Add(aTxt);
-            }
+            var MaxLength = 255;
+
+            m_MsgLb.Items.Add(aTxt.Length <= MaxLength ? aTxt : aTxt.Substring(0, MaxLength));  //Schneide String zu wenn > MaxLength
+
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
             if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
             {
@@ -247,14 +246,18 @@ namespace vis1
         //TODO: Absturz bei send Command, Send Button
         void OnSendEditKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 72)
+            /*if (e.KeyValue == 72)
             {
                 m_SendEd.Text = "";
                 ToggleAcq();
             }
             if (e.KeyValue != 13) // CR
                 return;
-            _cmp.ParseAndSend(m_SendEd.Text);
+            _cmp.ParseAndSend(m_SendEd.Text);*/
+
+
+
+
             /* short id, val;
             string[] words = m_SendEd.Text.Split(',');
             id = short.Parse(words[0]);
