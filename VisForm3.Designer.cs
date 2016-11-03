@@ -29,7 +29,6 @@ namespace vis1
     private void InitializeComponent()
     {
             this.components = new System.ComponentModel.Container();
-            this.label1 = new System.Windows.Forms.Label();
             this.m_SendEd = new System.Windows.Forms.TextBox();
             this.m_Disp1 = new System.Windows.Forms.Label();
             this.m_Disp2 = new System.Windows.Forms.Label();
@@ -37,22 +36,22 @@ namespace vis1
             this.m_DispTimer = new System.Windows.Forms.Timer(this.components);
             this.m_MsgLb = new System.Windows.Forms.ListBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.controMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.acqOnOffMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.emptyReceiceBufferMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearMessagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.acqPointMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.curveWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.keyBoardMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.barWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.osziToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setSingleShotValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.enableToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.controMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.acqOnOffMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.emptyReceiceBufferMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearMessagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.acqPointMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.m_Disp4 = new System.Windows.Forms.Label();
             this.m_Disp5 = new System.Windows.Forms.Label();
             this.m_Disp6 = new System.Windows.Forms.Label();
@@ -61,25 +60,16 @@ namespace vis1
             this.m_Disp8 = new System.Windows.Forms.Label();
             this.m_Disp9 = new System.Windows.Forms.Label();
             this._decodeTimer = new System.Windows.Forms.Timer(this.components);
+            this.Send = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(6, 34);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(48, 16);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Send:";
             // 
             // m_SendEd
             // 
             this.m_SendEd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_SendEd.Location = new System.Drawing.Point(61, 34);
+            this.m_SendEd.Location = new System.Drawing.Point(12, 36);
             this.m_SendEd.Name = "m_SendEd";
-            this.m_SendEd.Size = new System.Drawing.Size(145, 22);
+            this.m_SendEd.Size = new System.Drawing.Size(148, 22);
             this.m_SendEd.TabIndex = 1;
             this.m_SendEd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnSendEditKeyDown);
             // 
@@ -127,19 +117,109 @@ namespace vis1
             this.m_MsgLb.Name = "m_MsgLb";
             this.m_MsgLb.Size = new System.Drawing.Size(165, 290);
             this.m_MsgLb.TabIndex = 11;
+            this.m_MsgLb.SelectedIndexChanged += new System.EventHandler(this.m_MsgLb_SelectedIndexChanged);
             // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.controMenuItem,
-            this.windowToolStripMenuItem,
             this.fileToolStripMenuItem,
-            this.osziToolStripMenuItem});
+            this.windowToolStripMenuItem,
+            this.osziToolStripMenuItem,
+            this.controMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(501, 24);
             this.menuStrip1.TabIndex = 12;
             this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.saveToCSVToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // saveToCSVToolStripMenuItem
+            // 
+            this.saveToCSVToolStripMenuItem.Name = "saveToCSVToolStripMenuItem";
+            this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.saveToCSVToolStripMenuItem.Text = "Save";
+            this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
+            // 
+            // windowToolStripMenuItem
+            // 
+            this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.curveWinMenuItem,
+            this.keyBoardMenuItem,
+            this.barWinMenuItem});
+            this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
+            this.windowToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
+            this.windowToolStripMenuItem.Text = "Window";
+            // 
+            // curveWinMenuItem
+            // 
+            this.curveWinMenuItem.CheckOnClick = true;
+            this.curveWinMenuItem.Name = "curveWinMenuItem";
+            this.curveWinMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.curveWinMenuItem.Text = "CurveWin On/Off";
+            this.curveWinMenuItem.Click += new System.EventHandler(this.OnCurveWinOnOffMenue);
+            // 
+            // keyBoardMenuItem
+            // 
+            this.keyBoardMenuItem.CheckOnClick = true;
+            this.keyBoardMenuItem.Name = "keyBoardMenuItem";
+            this.keyBoardMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.keyBoardMenuItem.Text = "KeyBoard On/Off";
+            this.keyBoardMenuItem.Click += new System.EventHandler(this.OnKeyBoardMenue);
+            // 
+            // barWinMenuItem
+            // 
+            this.barWinMenuItem.CheckOnClick = true;
+            this.barWinMenuItem.Name = "barWinMenuItem";
+            this.barWinMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.barWinMenuItem.Text = "BarWin On/Off";
+            this.barWinMenuItem.Click += new System.EventHandler(this.OnBarWinMenue);
+            // 
+            // osziToolStripMenuItem
+            // 
+            this.osziToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setSingleShotValueToolStripMenuItem});
+            this.osziToolStripMenuItem.Name = "osziToolStripMenuItem";
+            this.osziToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.osziToolStripMenuItem.Text = "Oszi";
+            // 
+            // setSingleShotValueToolStripMenuItem
+            // 
+            this.setSingleShotValueToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setValueToolStripMenuItem,
+            this.resetToolStripMenuItem1,
+            this.enableToolStripMenuItem1});
+            this.setSingleShotValueToolStripMenuItem.Name = "setSingleShotValueToolStripMenuItem";
+            this.setSingleShotValueToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.setSingleShotValueToolStripMenuItem.Text = "Single Shot";
+            // 
+            // setValueToolStripMenuItem
+            // 
+            this.setValueToolStripMenuItem.Name = "setValueToolStripMenuItem";
+            this.setValueToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.setValueToolStripMenuItem.Text = "Set Value";
+            this.setValueToolStripMenuItem.Click += new System.EventHandler(this.setValueToolStripMenuItem_Click);
+            // 
+            // resetToolStripMenuItem1
+            // 
+            this.resetToolStripMenuItem1.Name = "resetToolStripMenuItem1";
+            this.resetToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
+            this.resetToolStripMenuItem1.Text = "Reset";
+            this.resetToolStripMenuItem1.Click += new System.EventHandler(this.resetToolStripMenuItem1_Click);
+            // 
+            // enableToolStripMenuItem1
+            // 
+            this.enableToolStripMenuItem1.CheckOnClick = true;
+            this.enableToolStripMenuItem1.Name = "enableToolStripMenuItem1";
+            this.enableToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
+            this.enableToolStripMenuItem1.Text = "Enable";
+            this.enableToolStripMenuItem1.Click += new System.EventHandler(this.enableToolStripMenuItem1_Click);
             // 
             // controMenuItem
             // 
@@ -181,95 +261,6 @@ namespace vis1
             this.acqPointMenuItem.Size = new System.Drawing.Size(183, 22);
             this.acqPointMenuItem.Text = "AcqPoints On/Off";
             this.acqPointMenuItem.Click += new System.EventHandler(this.OnAcqPointsOnOffMenue);
-            // 
-            // windowToolStripMenuItem
-            // 
-            this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.curveWinMenuItem,
-            this.keyBoardMenuItem,
-            this.barWinMenuItem});
-            this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
-            this.windowToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
-            this.windowToolStripMenuItem.Text = "Window";
-            // 
-            // curveWinMenuItem
-            // 
-            this.curveWinMenuItem.CheckOnClick = true;
-            this.curveWinMenuItem.Name = "curveWinMenuItem";
-            this.curveWinMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.curveWinMenuItem.Text = "CurveWin On/Off";
-            this.curveWinMenuItem.Click += new System.EventHandler(this.OnCurveWinOnOffMenue);
-            // 
-            // keyBoardMenuItem
-            // 
-            this.keyBoardMenuItem.CheckOnClick = true;
-            this.keyBoardMenuItem.Name = "keyBoardMenuItem";
-            this.keyBoardMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.keyBoardMenuItem.Text = "KeyBoard On/Off";
-            this.keyBoardMenuItem.Click += new System.EventHandler(this.OnKeyBoardMenue);
-            // 
-            // barWinMenuItem
-            // 
-            this.barWinMenuItem.CheckOnClick = true;
-            this.barWinMenuItem.Name = "barWinMenuItem";
-            this.barWinMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.barWinMenuItem.Text = "BarWin On/Off";
-            this.barWinMenuItem.Click += new System.EventHandler(this.OnBarWinMenue);
-            // 
-            // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveToCSVToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // saveToCSVToolStripMenuItem
-            // 
-            this.saveToCSVToolStripMenuItem.Name = "saveToCSVToolStripMenuItem";
-            this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
-            this.saveToCSVToolStripMenuItem.Text = "Save";
-            this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
-            // 
-            // osziToolStripMenuItem
-            // 
-            this.osziToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setSingleShotValueToolStripMenuItem});
-            this.osziToolStripMenuItem.Name = "osziToolStripMenuItem";
-            this.osziToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
-            this.osziToolStripMenuItem.Text = "Oszi";
-            // 
-            // setSingleShotValueToolStripMenuItem
-            // 
-            this.setSingleShotValueToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setValueToolStripMenuItem,
-            this.resetToolStripMenuItem1,
-            this.enableToolStripMenuItem1});
-            this.setSingleShotValueToolStripMenuItem.Name = "setSingleShotValueToolStripMenuItem";
-            this.setSingleShotValueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.setSingleShotValueToolStripMenuItem.Text = "Single Shot";
-            // 
-            // setValueToolStripMenuItem
-            // 
-            this.setValueToolStripMenuItem.Name = "setValueToolStripMenuItem";
-            this.setValueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.setValueToolStripMenuItem.Text = "Set Value";
-            this.setValueToolStripMenuItem.Click += new System.EventHandler(this.setValueToolStripMenuItem_Click);
-            // 
-            // resetToolStripMenuItem1
-            // 
-            this.resetToolStripMenuItem1.Name = "resetToolStripMenuItem1";
-            this.resetToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.resetToolStripMenuItem1.Text = "Reset";
-            this.resetToolStripMenuItem1.Click += new System.EventHandler(this.resetToolStripMenuItem1_Click);
-            // 
-            // enableToolStripMenuItem1
-            // 
-            this.enableToolStripMenuItem1.CheckOnClick = true;
-            this.enableToolStripMenuItem1.Name = "enableToolStripMenuItem1";
-            this.enableToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.enableToolStripMenuItem1.Text = "Enable";
-            this.enableToolStripMenuItem1.Click += new System.EventHandler(this.enableToolStripMenuItem1_Click);
             // 
             // m_Disp4
             // 
@@ -344,11 +335,21 @@ namespace vis1
             // 
             this._decodeTimer.Tick += new System.EventHandler(this.OnDecodeTimer);
             // 
+            // Send
+            // 
+            this.Send.Location = new System.Drawing.Point(166, 36);
+            this.Send.Name = "Send";
+            this.Send.Size = new System.Drawing.Size(75, 23);
+            this.Send.TabIndex = 23;
+            this.Send.Text = "Send";
+            this.Send.UseVisualStyleBackColor = true;
+            // 
             // VisForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(501, 335);
+            this.Controls.Add(this.Send);
             this.Controls.Add(this.m_Disp9);
             this.Controls.Add(this.m_Disp8);
             this.Controls.Add(this.m_Disp7);
@@ -358,7 +359,6 @@ namespace vis1
             this.Controls.Add(this.m_Disp4);
             this.Controls.Add(this.m_MsgLb);
             this.Controls.Add(this.m_SendEd);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.m_Disp3);
             this.Controls.Add(this.m_Disp2);
             this.Controls.Add(this.m_Disp1);
@@ -374,8 +374,6 @@ namespace vis1
     }
 
     #endregion
-
-    private System.Windows.Forms.Label label1;
     private System.Windows.Forms.TextBox m_SendEd;
     private System.Windows.Forms.Label m_Disp1;
     private System.Windows.Forms.Label m_Disp2;
@@ -407,6 +405,7 @@ namespace vis1
         private System.Windows.Forms.ToolStripMenuItem setValueToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem1;
+        private System.Windows.Forms.Button Send;
     }
 }
 

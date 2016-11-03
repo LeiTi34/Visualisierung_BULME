@@ -1,7 +1,10 @@
 using System;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using ZedHL;
 
 namespace vis1
@@ -11,45 +14,55 @@ namespace vis1
         public int Xmin;
         public int Xmax;
         #region Timing
+
         private const double FSample = 100;
-        private const double Sample = 1 / FSample;
-        private const int Disp = 100;  // milliSec
+        private const double Sample = 1/FSample;
+        private const int Disp = 100; // milliSec
         private const int Thread = 20; // milliSec
+
         #endregion
 
         //Konfigurationsdialog zur Auswahl eines COM-Ports
         void ConfigCommunication()
         {
-            // Get a list of serial port names.
-            var ports = SerialPort.GetPortNames();
-
-            // Port names zeilenweise in string scheiben
-            System.Text.StringBuilder sbportlist = new System.Text.StringBuilder();
-            foreach (var port in ports)
+            var comport = "";
+            do
             {
-                sbportlist.AppendLine(port.Length >= 3 ? port.Remove(4, port.Length - 4) : port);
+                var COMDialog = new ChooseCOM();
+
+                if (COMDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    comport = COMDialog.Port;
+                    COMDialog.Dispose();
+                }
+            } while (comport == "");
+
+            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
+
+            try
+            {
+                m_SerPort.Open(); //Serielle verbindung öffnen
             }
-            string portlist = sbportlist.ToString();
+            catch (IOException)
+            {
+                MessageBox.Show("COM-Port timed out!");
+                Environment.Exit(1);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Could not open COM-Port:\n\n" + e);
+                Environment.Exit(1);
+            }
 
-            //TODO: ListBox statt InputBox
-            //Dialog zur abfrage des Ports
-            var comport =
-                Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
-                "COM-Schnittstelle", ports[0].Length >= 3 ? ports[0].Remove(4, ports[0].Length - 4) : ports[0]);
 
-            //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
-            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) { ReadBufferSize = 20 * 1024 };
-
-            m_SerPort.Open(); //Serielle verbindung öffnen
-
-             //_ph = new SvIdProtocolHandler(m_SerPort, this);
-             //_ph = new SvIdProtocolHandler3(m_SerPort, this);
-           // _ph = new HPerfProtocolHandler(m_SerPort, this);
-           _ph = new BufProtocolHandler(m_SerPort, this);
+            //_ph = new SvIdProtocolHandler(m_SerPort, this);
+            //_ph = new SvIdProtocolHandler3(m_SerPort, this);
+            // _ph = new HPerfProtocolHandler(m_SerPort, this);
+            //_ph = new BufProtocolHandler(m_SerPort, this);
+           _ph = new NewProtocolHandler(m_SerPort, this);
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
-
         void CreateOnlineCurveWin() //Gennerieren des Curve Windows  
         {
             _ow = new OnlineCurveWin3();
