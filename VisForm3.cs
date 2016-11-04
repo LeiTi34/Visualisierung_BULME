@@ -1,7 +1,11 @@
 using System;
+using System.Configuration;
 using System.Windows.Forms;
 using System.IO.Ports;
+using System.Threading;
+using System.Drawing;
 using System.Threading.Tasks;
+using System.Windows.Forms.DataVisualization.Charting;
 using ZedHL;
 
 namespace vis1
@@ -32,6 +36,19 @@ namespace vis1
         #endregion
         private int _displayCounter = 0;
 
+        #region Chart
+        //private Chart chart = new Chart();
+        private Series[] ser = new Series[10];
+        #endregion
+
+        #region Threads
+        private Thread Parse;
+        private Thread Draw;
+        #endregion
+
+        public delegate void AddDataDelegate();
+        public AddDataDelegate addDataDel;
+
         public VisForm3()
         {
             InitializeComponent();
@@ -59,19 +76,42 @@ namespace vis1
 
             _cmp = new CommandParser(_ph.binWr);
 
-            m_DispTimer.Interval = Disp;
-            m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = Thread;
-            _decodeTimer.Enabled = true;
+            _ph.ChannelRead = "";
+            _ph.ChannelWrite = "";
 
-            CreateOnlineCurveWin();
-            CreateVertWin();
+            //Spuren Initialisiern
+            for (var channel = 0; channel < 10; channel++)
+            {
+                
+                //_ph.ChannelSet[channel] = false;
+
+                ser[channel] = new Series("S" + channel + 1)
+                {
+                    ChartType = SeriesChartType.Line,
+                    ChartArea = "ChartArea1",
+                    Legend = "Legend1",
+                    Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name"),
+                };
+                chart1.Series.Add(ser[channel]);
+            }
+
+
+            //Threads erstellen
+            Parse = new Thread(new ParameterizedThreadStart(_ph.Parse));
+            Parse.Start();
+
+            Draw = new Thread(new ParameterizedThreadStart(AddToChart));
+            Draw.Start();
+
+            //CreateOnlineCurveWin();
+            //CreateVertWin();
 
             _pnf = new PianoForm(_ph.binWr);
             //_AddTextInvoker = this.AddText2ListBox;
             // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
             base.OnLoad(e);
         }
+
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
@@ -130,77 +170,58 @@ namespace vis1
             _olc.SetAcqPoints(acqPointMenuItem.Checked);
         }
 
-        void OnDispTimer(object sender, EventArgs e)
+        /*void OnDispTimer(object sender, EventArgs e)
         {
-            
-            /* if (ph.CheckValsPerSecond())
-            {
-              string txt = string.Format("VPS: {0:F1}", ph.valsPerSec);
-              PrintMsg(txt);
-            } */
-            // if( ph.ParseAllPackets() )
-            // DisplayValues();
 
             if (_doDisplay)
             {
                 DisplayValues();
                 _doDisplay = false;
             }
-        }
-
-        void OnDecodeTimer(object sender, EventArgs e)
-        {
-            //Task.Run(() => _doDisplay = _ph.ParseAllPackets());
-            _doDisplay = _ph.ParseAllPackets();
-        }
-
-        /*void DecoderThreadLoop()
-        {
-            while (_doDecode)
-            {
-                Thread.Sleep(T_THREAD);
-                if (ph.ParseAllPackets())
-                    _doDisplay = true;
-            }
-            _doDisplay = false;
-            ph.SwitchAcq(false);
-            ph.Flush();
         }*/
 
-        private void DisplayValues()
+        /*void OnDecodeTimer(object sender, EventArgs e)
         {
-            for (var i = 0; i < _ph.NVals; i++)
+            _doDisplay = _ph.ParseAllPackets();
+        }*/
+
+
+        private void AddToChart(object stateinfo)
+        {
+            while (true)
             {
-                _ph.form.chart1.Series[i].Points.Add(_ph.vf[i]);
-            }
-            _displayCounter++;
-            if (_displayCounter > 20)
-            {
-                _ph.form.chart1.ChartAreas[0].AxisX.Minimum++;
-                _ph.form.chart1.ChartAreas[0].AxisX.Maximum++;
-                _displayCounter--;
-            }
-            for (int i = 0; i < _ph.NVals; i++)
-            {
-                /* if (i == 8)
-                  DisplayLineBits();
-                else */
-                m_LblAry[i].Text = String.Format("{0:F2}", _ph.vf[i]);
-                
-            }
-            if (_vbw.Visible)
-            {
-                for (int i = 0; i < _ph.NVals; i++)
-                    _vbw.SetBarValue(i, _ph.vf[i]);
-                _vbw.InvalidateGraph();
-            }
-            if (_ow.Visible)
-            {
-                // _ow.Invalidate();
-                // _olc.AxisChange();
-                _olc.Invalidate();
+
+                if (_ph.logchannel.Count > 0)
+                    chart1.Series[_ph.logchannel.Dequeue()].Points.Add(_ph.logfloat.Dequeue());
+
+                /*_displayCounter++;
+                if (_displayCounter > 20)
+                {
+                    chart.chart1.ChartAreas[0].AxisX.Minimum++;
+                    chart.chart1.ChartAreas[0].AxisX.Maximum++;
+                    _displayCounter--;
+                }*/
             }
         }
+
+        /*for (int i = 0; i < _ph.NVals; i++)
+        {
+
+            m_LblAry[i].Text = String.Format("{0:F2}", _ph.vf[i]);
+
+        }
+        if (_vbw.Visible)
+        {
+            for (int i = 0; i < _ph.NVals; i++)
+                _vbw.SetBarValue(i, _ph.vf[i]);
+            _vbw.InvalidateGraph();
+        }
+        if (_ow.Visible)
+        {
+            // _ow.Invalidate();
+            // _olc.AxisChange();
+            _olc.Invalidate();
+        }*/
 
         /*void DisplayLineBits()
         {
@@ -296,17 +317,16 @@ namespace vis1
 
         void OnCurveWinOnOffMenue(object sender, EventArgs e) //Toggle Curve Window
         {
-            if (curveWinMenuItem.Checked)
-            {
-                _ow.Show(); //Show Curve window
-                //Form1 form = new Form1();
-                //form.Show();
-                _ph.form.Show();
-            }
+            /*if (curveWinMenuItem.Checked)
+                chart.Show();
+            //_ow.Show(); //Show Curve window
+            //Form1 form = new Form1();
+            //form.Show();
 
             else
-                _ow.Hide(); //Hide Curve window
-                //_ph.form.Hide();
+                chart.Hide()*/
+            //_ow.Hide(); //Hide Curve window
+            //_ph.form.Hide();
         }
 
         void OnBarWinMenue(object sender, EventArgs e)  //Toggle Bar Window

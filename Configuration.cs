@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 using ZedHL;
 
 namespace vis1
@@ -59,7 +58,7 @@ namespace vis1
             //_ph = new SvIdProtocolHandler3(m_SerPort, this);
             // _ph = new HPerfProtocolHandler(m_SerPort, this);
             //_ph = new BufProtocolHandler(m_SerPort, this);
-           _ph = new NewProtocolHandler(m_SerPort, this);
+            _ph = new NewProtocolHandler(m_SerPort, this);
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default

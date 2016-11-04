@@ -18,7 +18,7 @@ namespace vis1
         private void SetPorts()
         {
             PortsLB.Items.Clear();
-            PortsLB.Items.AddRange(SerialPort.GetPortNames());
+            PortsLB.Items.AddRange( SerialPort.GetPortNames() );
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
