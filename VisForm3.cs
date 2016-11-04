@@ -46,8 +46,8 @@ namespace vis1
         private Thread Draw;
         #endregion
 
-        public delegate void AddDataDelegate();
-        public AddDataDelegate addDataDel;
+        public delegate void AddDataDelegate(int channel, float value);
+        //public AddDataDelegate addDataDel;
 
         public VisForm3()
         {
@@ -190,10 +190,17 @@ namespace vis1
         {
             while (true)
             {
+                lock (_ph.ChannelRead)
+                {
+                    if (_ph.logchannel.Count == 0)
+                        Monitor.Wait(_ph.ChannelWrite);
 
-                if (_ph.logchannel.Count > 0)
-                    chart1.Series[_ph.logchannel.Dequeue()].Points.Add(_ph.logfloat.Dequeue());
+                    if(_ph.logchannel.Count > 0)
+                        AddData(_ph.logchannel.Dequeue(), _ph.logfloat.Dequeue());
 
+                    Monitor.PulseAll(_ph.ChannelRead);
+                }
+                //TODO Dynamische X-Achse
                 /*_displayCounter++;
                 if (_displayCounter > 20)
                 {
@@ -202,6 +209,17 @@ namespace vis1
                     _displayCounter--;
                 }*/
             }
+        }
+
+        public void AddData(int channel, float value)
+        {
+            if (chart1.InvokeRequired)
+            {
+                AddDataDelegate d = new AddDataDelegate(AddData);
+                this.Invoke(d, new object[] { channel, value });
+            }
+            else
+                ser[channel].Points.Add(value);
         }
 
         /*for (int i = 0; i < _ph.NVals; i++)

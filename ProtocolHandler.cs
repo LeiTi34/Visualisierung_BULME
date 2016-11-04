@@ -61,6 +61,8 @@ namespace vis1
 
         public bool ParseState = false;
 
+        //public object cond = "";
+
         public readonly float[] fvals = new float[10];
         public object ChannelWrite; // = new object[10];
         public object ChannelRead; // = new object[10];
@@ -487,13 +489,18 @@ namespace vis1
                 //ParseState = false;
                 //return false;
 
-                while (m_P.BytesToRead >= 3)
+                lock (ChannelWrite)
                 {
+                    if(m_P.BytesToRead < 3)
+                        Monitor.Wait(ChannelRead);
 
-                    //lock (ChannelWrite)
-                    //{
-                        if (logchannel.Count >= 10)
-                            Monitor.Wait(ChannelRead);
+                    while (m_P.BytesToRead >= 3)
+                    {
+
+                        //lock (ChannelWrite)
+                        //{
+                        //if (logchannel.Count >= 10)
+                        //    Monitor.Wait(ChannelRead);
                         int i = m_BinRd.ReadByte() - 1;
                         //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
 
@@ -543,8 +550,9 @@ namespace vis1
                             logfloat.Enqueue(m_BinRd.ReadSingle());
 
                         }
-                        //Monitor.PulseAll(ChannelWrite);
-                    //}
+                        Monitor.PulseAll(ChannelWrite);
+                        //}
+                    }
                 }
                 //return true;
                 //ParseState = true;
