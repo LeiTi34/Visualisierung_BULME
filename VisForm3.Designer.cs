@@ -29,9 +29,9 @@ namespace vis1
     private void InitializeComponent()
     {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.m_SendEd = new System.Windows.Forms.TextBox();
             this.m_Disp1 = new System.Windows.Forms.Label();
             this.m_Disp2 = new System.Windows.Forms.Label();
@@ -65,16 +65,20 @@ namespace vis1
             this._decodeTimer = new System.Windows.Forms.Timer(this.components);
             this.Send = new System.Windows.Forms.Button();
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // m_SendEd
             // 
+            this.m_SendEd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.m_SendEd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_SendEd.Location = new System.Drawing.Point(12, 36);
+            this.m_SendEd.Location = new System.Drawing.Point(0, 2);
             this.m_SendEd.Name = "m_SendEd";
-            this.m_SendEd.Size = new System.Drawing.Size(148, 22);
+            this.m_SendEd.Size = new System.Drawing.Size(746, 22);
             this.m_SendEd.TabIndex = 1;
             this.m_SendEd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnSendEditKeyDown);
             // 
@@ -113,9 +117,9 @@ namespace vis1
             this.m_MsgLb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.m_MsgLb.FormattingEnabled = true;
-            this.m_MsgLb.Location = new System.Drawing.Point(336, 36);
+            this.m_MsgLb.Location = new System.Drawing.Point(351, 27);
             this.m_MsgLb.Name = "m_MsgLb";
-            this.m_MsgLb.Size = new System.Drawing.Size(165, 290);
+            this.m_MsgLb.Size = new System.Drawing.Size(165, 316);
             this.m_MsgLb.TabIndex = 11;
             this.m_MsgLb.SelectedIndexChanged += new System.EventHandler(this.m_MsgLb_SelectedIndexChanged);
             // 
@@ -296,9 +300,9 @@ namespace vis1
             // 
             this._sb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this._sb.Location = new System.Drawing.Point(9, 64);
+            this._sb.Location = new System.Drawing.Point(9, 45);
             this._sb.Name = "_sb";
-            this._sb.Size = new System.Drawing.Size(243, 269);
+            this._sb.Size = new System.Drawing.Size(243, 298);
             this._sb.TabIndex = 19;
             // 
             // m_Disp7
@@ -333,7 +337,8 @@ namespace vis1
             // 
             // Send
             // 
-            this.Send.Location = new System.Drawing.Point(166, 36);
+            this.Send.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Send.Location = new System.Drawing.Point(752, 1);
             this.Send.Name = "Send";
             this.Send.Size = new System.Drawing.Size(75, 23);
             this.Send.TabIndex = 23;
@@ -345,29 +350,40 @@ namespace vis1
             this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            this.chart1.ChartAreas[0].AxisX.Minimum = 0;
-            this.chart1.ChartAreas[0].AxisX.Maximum = 20;
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
+            chartArea3.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.chart1.Legends.Add(legend3);
             this.chart1.Location = new System.Drawing.Point(522, 26);
             this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(314, 300);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.chart1.Series.Add(series3);
+            this.chart1.Size = new System.Drawing.Size(314, 317);
             this.chart1.TabIndex = 24;
-            this.chart1.Text = "chart1";
+            this.chart1.Text = "chart";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.Send);
+            this.groupBox1.Controls.Add(this.m_SendEd);
+            this.groupBox1.Location = new System.Drawing.Point(9, 349);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(827, 30);
+            this.groupBox1.TabIndex = 25;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "groupBox1";
             // 
             // VisForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(848, 335);
+            this.ClientSize = new System.Drawing.Size(848, 387);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.chart1);
-            this.Controls.Add(this.Send);
             this.Controls.Add(this.m_Disp9);
             this.Controls.Add(this.m_Disp8);
             this.Controls.Add(this.m_Disp7);
@@ -376,7 +392,6 @@ namespace vis1
             this.Controls.Add(this.m_Disp5);
             this.Controls.Add(this.m_Disp4);
             this.Controls.Add(this.m_MsgLb);
-            this.Controls.Add(this.m_SendEd);
             this.Controls.Add(this.m_Disp3);
             this.Controls.Add(this.m_Disp2);
             this.Controls.Add(this.m_Disp1);
@@ -387,6 +402,8 @@ namespace vis1
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -426,6 +443,7 @@ namespace vis1
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem1;
         private System.Windows.Forms.Button Send;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
 

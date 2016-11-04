@@ -7,9 +7,9 @@ namespace vis1
         public Chart()
         {
             InitializeComponent();
-            /*chart1.Series["Series1"].XValueType = ChartValueType.Int32;
-            chart1.Series["Series1"].YValueType = ChartValueType.Int32;*/
-            //chart1.Series[]
+            /*chart.Series["Series1"].XValueType = ChartValueType.Int32;
+            chart.Series["Series1"].YValueType = ChartValueType.Int32;*/
+            //chart.Series[]
         }
     }
 }

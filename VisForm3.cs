@@ -38,7 +38,9 @@ namespace vis1
 
         #region Chart
         //private Chart chart = new Chart();
-        private Series[] ser = new Series[10];
+        private Series[] _series = new Series[10];
+        private ChartArea _chartArea = new ChartArea() { Name = "ChartArea" };
+        //private int _xAxiscount = 0;
         #endregion
 
         #region Threads
@@ -79,28 +81,35 @@ namespace vis1
             _ph.ChannelRead = "";
             _ph.ChannelWrite = "";
 
+            //ChartArea hinzufügen
+            chart1.ChartAreas.Add(_chartArea);
+
             //Spuren Initialisiern
             for (var channel = 0; channel < 10; channel++)
             {
                 
                 //_ph.ChannelSet[channel] = false;
 
-                ser[channel] = new Series("S" + channel + 1)
+                _series[channel] = new Series("S" + channel + 1)
                 {
                     ChartType = SeriesChartType.Line,
-                    ChartArea = "ChartArea1",
+                    ChartArea = "ChartArea",
+                    BorderWidth = 2,
                     Legend = "Legend1",
                     Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name"),
+                    //IsXValueIndexed = true
                 };
-                chart1.Series.Add(ser[channel]);
+                chart1.Series.Add(_series[channel]);
+
+                
             }
 
 
             //Threads erstellen
-            Parse = new Thread(new ParameterizedThreadStart(_ph.Parse));
+            Parse = new Thread(new ParameterizedThreadStart(_ph.Parse));    //Liest vom Stream
             Parse.Start();
 
-            Draw = new Thread(new ParameterizedThreadStart(AddToChart));
+            Draw = new Thread(new ParameterizedThreadStart(AddToChart));    //Zeichnet den Graph
             Draw.Start();
 
             //CreateOnlineCurveWin();
@@ -135,7 +144,7 @@ namespace vis1
                 System.Threading.Thread.Sleep(200);
 
                 _ph.SwitchAcq(true);
-                _ph.Flush();
+                _ph.Flush();    
 
                 // m_DispTimer.Enabled = true;
                 // stw.Reset(); stw.Start();
@@ -202,12 +211,7 @@ namespace vis1
                 }
                 //TODO Dynamische X-Achse
                 /*_displayCounter++;
-                if (_displayCounter > 20)
-                {
-                    chart.chart1.ChartAreas[0].AxisX.Minimum++;
-                    chart.chart1.ChartAreas[0].AxisX.Maximum++;
-                    _displayCounter--;
-                }*/
+                */
             }
         }
 
@@ -216,10 +220,22 @@ namespace vis1
             if (chart1.InvokeRequired)
             {
                 AddDataDelegate d = new AddDataDelegate(AddData);
-                this.Invoke(d, new object[] { channel, value });
+                this.Invoke(d, new object[] {channel, value});
             }
             else
-                ser[channel].Points.Add(value);
+            {
+                _series[channel].Points.Add(value);
+
+                if (_chartArea.AxisX.Minimum + 200 < _chartArea.AxisX.Maximum)
+                {
+                    _series[channel].Points.RemoveAt(0);
+                }
+
+                _chartArea.AxisX.Minimum = _series[channel].Points[0].XValue;
+
+                chart1.Invalidate();
+
+            }
         }
 
         /*for (int i = 0; i < _ph.NVals; i++)
