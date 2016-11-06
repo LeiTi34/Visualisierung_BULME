@@ -1,9 +1,9 @@
 using System;
 using System.Configuration;
-using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 using ZedHL;
 
 namespace vis1
@@ -12,14 +12,6 @@ namespace vis1
     {
         public int Xmin;
         public int Xmax;
-        #region Timing
-
-        private const double FSample = 100;
-        private const double Sample = 1/FSample;
-        private const int Disp = 100; // milliSec
-        private const int Thread = 20; // milliSec
-
-        #endregion
 
         //Konfigurationsdialog zur Auswahl eines COM-Ports
         void ConfigCommunication()
@@ -27,90 +19,72 @@ namespace vis1
             var comport = "";
             do
             {
-                var COMDialog = new ChooseCOM();
+                var comDialog = new ChooseCom();
 
-                if (COMDialog.ShowDialog(this) == DialogResult.OK)
+                if (comDialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    comport = COMDialog.Port;
-                    COMDialog.Dispose();
+                    comport = comDialog.Port;
+                    comDialog.Dispose();
                 }
             } while (comport == "");
 
-            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
+            _mSerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20*1024};
 
             try
             {
-                m_SerPort.Open(); //Serielle verbindung öffnen
+                _mSerPort.Open(); //Serielle verbindung öffnen
             }
             catch (IOException)
             {
-                MessageBox.Show("COM-Port timed out!");
+                MessageBox.Show(@"COM-Port timed out!");
                 Environment.Exit(1);
             }
             catch (Exception e)
             {
-                MessageBox.Show("Could not open COM-Port:\n\n" + e);
+                MessageBox.Show(@"Could not open COM-Port:\n\n" + e);
                 Environment.Exit(1);
             }
-
-
-            //_ph = new SvIdProtocolHandler(m_SerPort, this);
-            //_ph = new SvIdProtocolHandler3(m_SerPort, this);
-            // _ph = new HPerfProtocolHandler(m_SerPort, this);
-            //_ph = new BufProtocolHandler(m_SerPort, this);
-            _ph = new NewProtocolHandler(m_SerPort, this);
-        }
-
-        ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
-        void CreateOnlineCurveWin() //Gennerieren des Curve Windows  
-        {
-            _ow = new OnlineCurveWin3();
-            _olc = _ow.olc;
-            _olc.buffSize = (int)(20 * FSample);
-
-            //Skalierungen von app.conf file einlesen und setzen
-            _olc.SetY1Scale(false,  //Y1-Axis
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1min")),
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1max")));
-            _olc.SetY2Scale(false,  //Y2-Axis
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2min")),
-                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2max")));
-
-            //X-Axis
-            Xmin = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin"));
-            Xmax = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"));
-            _olc.SetXScale(false, Xmin, Xmax); 
-
-            //olc.SetCurve(<ID>, <Name>, <Color>, <Y2>, )
-            for (var track = 1; track <= 10; track++)    //Track 1...5
+            finally
             {
-                if (Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Enable")))    //Enable von app.conf file Lesen
-                {
-                    //Werte aus app.conf file einlesen und dem richtigen Track zuweisen
-                    _ph.ivs[track-1] = _olc.SetCurve2(
-                        track-1,  //ID
-                        ConfigurationManager.AppSettings.Get("S" + track + "Name"), //Name
-                        Color.FromName(ConfigurationManager.AppSettings.Get("S" + track + "Color")),    //Color
-                        Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Y2")),    //Y2-Axis
-                        Sample );   //Sample-Rate
-                }
+                statusStrip.Items.Add("COM-Port opened successful");
             }
 
-            _olc.AxisChange();
-            _olc.AddKeyEventHandler(OnKeyDownOnGraph);
+            _ph = new NewProtocolHandler(_mSerPort, this);
         }
 
-        void CreateVertWin()    //Bar Window generiern
+        void SetupLineChart()
+        {
+            //ChartArea hinzufügen
+            lineChart.ChartAreas.Add(_chartArea);
+
+            //Spuren Initialisiern
+            for (var channel = 0; channel < 10; channel++)
+            {
+                _series[channel] = new Series("S" + channel + 1)
+                {
+                    ChartType = SeriesChartType.Line,
+                    ChartArea = "ChartArea",
+                    BorderWidth = 2,
+                    Legend = "Legend1",
+                    Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name"),
+                    //IsXValueIndexed = true
+                };
+                lineChart.Series.Add(_series[channel]);
+            }
+        }
+
+        /*void CreateVertWin()    //Bar Window generiern
         {
             _vbw = new VertBarWin();
             string[] names = { "1", "2", "3", "4", "5", "6" };    //Namen der Bars definieren
             _vbw.CreateBars2(names);
             _vbw.SetY1Scale(false, -10, 800); //Scale
             _vbw.AxisChange();
-        }
+        }*/
 
         void SetupSliders() //Slider Generieren
         {
+            //TODO App.Conf File
             _sb.ms[0].SetRange(-100, 100, 1); _sb.ms[0].cb = this;      //Slider 1 Range definieren
             _sb.ms[0].Text = "1";    //Slider 1 Name definieren
             _sb.ms[1].SetRange(-1000, 1000, 1); _sb.ms[1].cb = this;    //Slider 2 Range definieren

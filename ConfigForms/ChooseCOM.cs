@@ -4,11 +4,11 @@ using System.Windows.Forms;
 
 namespace vis1
 {
-    public partial class ChooseCOM : Form
+    public partial class ChooseCom : Form
     {
         public string Port = "";
 
-        public ChooseCOM()
+        public ChooseCom()
         {
             InitializeComponent();
 
@@ -18,14 +18,14 @@ namespace vis1
         private void SetPorts()
         {
             PortsLB.Items.Clear();
-            PortsLB.Items.AddRange( SerialPort.GetPortNames() );
+            PortsLB.Items.AddRange(SerialPort.GetPortNames());
         }
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
             if (PortsLB.SelectedIndex == -1)
             {
-                MessageBox.Show("Please select an Item first!");    
+                MessageBox.Show(@"Please select an Item first!");    
             }
             else
             {

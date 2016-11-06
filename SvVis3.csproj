@@ -63,22 +63,16 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DotNetSvExtensions.cs" />
-    <Compile Include="ChooseCOM.cs">
+    <Compile Include="ConfigForms\ChooseCOM.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ChooseCOM.Designer.cs">
+    <Compile Include="ConfigForms\ChooseCOM.Designer.cs">
       <DependentUpon>ChooseCOM.cs</DependentUpon>
     </Compile>
-    <Compile Include="Chart.cs">
+    <Compile Include="ConfigForms\SingleShotSetVals.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Chart.Designer.cs">
-      <DependentUpon>Chart.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SingleShotSetVals.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SingleShotSetVals.Designer.cs">
+    <Compile Include="ConfigForms\SingleShotSetVals.Designer.cs">
       <DependentUpon>SingleShotSetVals.cs</DependentUpon>
     </Compile>
     <Compile Include="ProtocolHandler.cs" />
@@ -90,13 +84,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ChooseCOM.resx">
+    <EmbeddedResource Include="ConfigForms\ChooseCOM.resx">
       <DependentUpon>ChooseCOM.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Chart.resx">
-      <DependentUpon>Chart.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SingleShotSetVals.resx">
+    <EmbeddedResource Include="ConfigForms\SingleShotSetVals.resx">
       <DependentUpon>SingleShotSetVals.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VisForm3.resx">

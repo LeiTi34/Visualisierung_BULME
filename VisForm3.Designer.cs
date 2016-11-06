@@ -29,9 +29,9 @@ namespace vis1
     private void InitializeComponent()
     {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.m_SendEd = new System.Windows.Forms.TextBox();
             this.m_Disp1 = new System.Windows.Forms.Label();
             this.m_Disp2 = new System.Windows.Forms.Label();
@@ -41,20 +41,16 @@ namespace vis1
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToCSVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.curveWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.keyBoardMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.barWinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.osziToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setSingleShotValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.resetToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.enableToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.controMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.acqOnOffMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.emptyReceiceBufferMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearMessagesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.acqPointMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.osziToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setSingleShotValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.enableToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.m_Disp4 = new System.Windows.Forms.Label();
             this.m_Disp5 = new System.Windows.Forms.Label();
             this.m_Disp6 = new System.Windows.Forms.Label();
@@ -64,10 +60,11 @@ namespace vis1
             this.m_Disp9 = new System.Windows.Forms.Label();
             this._decodeTimer = new System.Windows.Forms.Timer(this.components);
             this.Send = new System.Windows.Forms.Button();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.lineChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lineChart)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -119,7 +116,7 @@ namespace vis1
             this.m_MsgLb.FormattingEnabled = true;
             this.m_MsgLb.Location = new System.Drawing.Point(351, 27);
             this.m_MsgLb.Name = "m_MsgLb";
-            this.m_MsgLb.Size = new System.Drawing.Size(165, 316);
+            this.m_MsgLb.Size = new System.Drawing.Size(165, 368);
             this.m_MsgLb.TabIndex = 11;
             this.m_MsgLb.SelectedIndexChanged += new System.EventHandler(this.m_MsgLb_SelectedIndexChanged);
             // 
@@ -127,9 +124,8 @@ namespace vis1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.windowToolStripMenuItem,
-            this.osziToolStripMenuItem,
-            this.controMenuItem});
+            this.controMenuItem,
+            this.osziToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(848, 24);
@@ -150,80 +146,6 @@ namespace vis1
             this.saveToCSVToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
             this.saveToCSVToolStripMenuItem.Text = "Save";
             this.saveToCSVToolStripMenuItem.Click += new System.EventHandler(this.saveToCSVToolStripMenuItem_Click);
-            // 
-            // windowToolStripMenuItem
-            // 
-            this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.curveWinMenuItem,
-            this.keyBoardMenuItem,
-            this.barWinMenuItem});
-            this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
-            this.windowToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
-            this.windowToolStripMenuItem.Text = "Window";
-            // 
-            // curveWinMenuItem
-            // 
-            this.curveWinMenuItem.CheckOnClick = true;
-            this.curveWinMenuItem.Name = "curveWinMenuItem";
-            this.curveWinMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.curveWinMenuItem.Text = "CurveWin On/Off";
-            this.curveWinMenuItem.Click += new System.EventHandler(this.OnCurveWinOnOffMenue);
-            // 
-            // keyBoardMenuItem
-            // 
-            this.keyBoardMenuItem.CheckOnClick = true;
-            this.keyBoardMenuItem.Name = "keyBoardMenuItem";
-            this.keyBoardMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.keyBoardMenuItem.Text = "KeyBoard On/Off";
-            this.keyBoardMenuItem.Click += new System.EventHandler(this.OnKeyBoardMenue);
-            // 
-            // barWinMenuItem
-            // 
-            this.barWinMenuItem.CheckOnClick = true;
-            this.barWinMenuItem.Name = "barWinMenuItem";
-            this.barWinMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.barWinMenuItem.Text = "BarWin On/Off";
-            this.barWinMenuItem.Click += new System.EventHandler(this.OnBarWinMenue);
-            // 
-            // osziToolStripMenuItem
-            // 
-            this.osziToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setSingleShotValueToolStripMenuItem});
-            this.osziToolStripMenuItem.Name = "osziToolStripMenuItem";
-            this.osziToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
-            this.osziToolStripMenuItem.Text = "Oszi";
-            // 
-            // setSingleShotValueToolStripMenuItem
-            // 
-            this.setSingleShotValueToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.setValueToolStripMenuItem,
-            this.resetToolStripMenuItem1,
-            this.enableToolStripMenuItem1});
-            this.setSingleShotValueToolStripMenuItem.Name = "setSingleShotValueToolStripMenuItem";
-            this.setSingleShotValueToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
-            this.setSingleShotValueToolStripMenuItem.Text = "Single Shot";
-            // 
-            // setValueToolStripMenuItem
-            // 
-            this.setValueToolStripMenuItem.Name = "setValueToolStripMenuItem";
-            this.setValueToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
-            this.setValueToolStripMenuItem.Text = "Set Value";
-            this.setValueToolStripMenuItem.Click += new System.EventHandler(this.setValueToolStripMenuItem_Click);
-            // 
-            // resetToolStripMenuItem1
-            // 
-            this.resetToolStripMenuItem1.Name = "resetToolStripMenuItem1";
-            this.resetToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
-            this.resetToolStripMenuItem1.Text = "Reset";
-            this.resetToolStripMenuItem1.Click += new System.EventHandler(this.resetToolStripMenuItem1_Click);
-            // 
-            // enableToolStripMenuItem1
-            // 
-            this.enableToolStripMenuItem1.CheckOnClick = true;
-            this.enableToolStripMenuItem1.Name = "enableToolStripMenuItem1";
-            this.enableToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
-            this.enableToolStripMenuItem1.Text = "Enable";
-            this.enableToolStripMenuItem1.Click += new System.EventHandler(this.enableToolStripMenuItem1_Click);
             // 
             // controMenuItem
             // 
@@ -266,6 +188,46 @@ namespace vis1
             this.acqPointMenuItem.Text = "AcqPoints On/Off";
             this.acqPointMenuItem.Click += new System.EventHandler(this.OnAcqPointsOnOffMenue);
             // 
+            // osziToolStripMenuItem
+            // 
+            this.osziToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setSingleShotValueToolStripMenuItem});
+            this.osziToolStripMenuItem.Name = "osziToolStripMenuItem";
+            this.osziToolStripMenuItem.Size = new System.Drawing.Size(41, 20);
+            this.osziToolStripMenuItem.Text = "Oszi";
+            // 
+            // setSingleShotValueToolStripMenuItem
+            // 
+            this.setSingleShotValueToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setValueToolStripMenuItem,
+            this.resetToolStripMenuItem1,
+            this.enableToolStripMenuItem1});
+            this.setSingleShotValueToolStripMenuItem.Name = "setSingleShotValueToolStripMenuItem";
+            this.setSingleShotValueToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.setSingleShotValueToolStripMenuItem.Text = "Single Shot";
+            // 
+            // setValueToolStripMenuItem
+            // 
+            this.setValueToolStripMenuItem.Name = "setValueToolStripMenuItem";
+            this.setValueToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.setValueToolStripMenuItem.Text = "Set Value";
+            this.setValueToolStripMenuItem.Click += new System.EventHandler(this.setValueToolStripMenuItem_Click);
+            // 
+            // resetToolStripMenuItem1
+            // 
+            this.resetToolStripMenuItem1.Name = "resetToolStripMenuItem1";
+            this.resetToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
+            this.resetToolStripMenuItem1.Text = "Reset";
+            this.resetToolStripMenuItem1.Click += new System.EventHandler(this.resetToolStripMenuItem1_Click);
+            // 
+            // enableToolStripMenuItem1
+            // 
+            this.enableToolStripMenuItem1.CheckOnClick = true;
+            this.enableToolStripMenuItem1.Name = "enableToolStripMenuItem1";
+            this.enableToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
+            this.enableToolStripMenuItem1.Text = "Enable";
+            this.enableToolStripMenuItem1.Click += new System.EventHandler(this.enableToolStripMenuItem1_Click);
+            // 
             // m_Disp4
             // 
             this.m_Disp4.AutoSize = true;
@@ -302,7 +264,7 @@ namespace vis1
             | System.Windows.Forms.AnchorStyles.Left)));
             this._sb.Location = new System.Drawing.Point(9, 45);
             this._sb.Name = "_sb";
-            this._sb.Size = new System.Drawing.Size(243, 298);
+            this._sb.Size = new System.Drawing.Size(243, 370);
             this._sb.TabIndex = 19;
             // 
             // m_Disp7
@@ -345,24 +307,24 @@ namespace vis1
             this.Send.Text = "Send";
             this.Send.UseVisualStyleBackColor = true;
             // 
-            // chart1
+            // lineChart
             // 
-            this.chart1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lineChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
-            this.chart1.Location = new System.Drawing.Point(522, 26);
-            this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(314, 317);
-            this.chart1.TabIndex = 24;
-            this.chart1.Text = "chart";
+            chartArea2.Name = "ChartArea1";
+            this.lineChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.lineChart.Legends.Add(legend2);
+            this.lineChart.Location = new System.Drawing.Point(522, 26);
+            this.lineChart.Name = "lineChart";
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.lineChart.Series.Add(series2);
+            this.lineChart.Size = new System.Drawing.Size(314, 389);
+            this.lineChart.TabIndex = 24;
+            this.lineChart.Text = "chart";
             // 
             // groupBox1
             // 
@@ -370,20 +332,29 @@ namespace vis1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.Send);
             this.groupBox1.Controls.Add(this.m_SendEd);
-            this.groupBox1.Location = new System.Drawing.Point(9, 349);
+            this.groupBox1.Location = new System.Drawing.Point(9, 401);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(827, 30);
             this.groupBox1.TabIndex = 25;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
             // 
+            // statusStrip
+            // 
+            this.statusStrip.Location = new System.Drawing.Point(0, 437);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(848, 22);
+            this.statusStrip.TabIndex = 26;
+            this.statusStrip.Text = "statusStrip";
+            // 
             // VisForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(848, 387);
+            this.ClientSize = new System.Drawing.Size(848, 459);
+            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.chart1);
+            this.Controls.Add(this.lineChart);
             this.Controls.Add(this.m_Disp9);
             this.Controls.Add(this.m_Disp8);
             this.Controls.Add(this.m_Disp7);
@@ -401,7 +372,7 @@ namespace vis1
             this.Text = "SvVis3  V2.2";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.lineChart)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -430,10 +401,6 @@ namespace vis1
     private System.Windows.Forms.Label m_Disp8;
     private System.Windows.Forms.Label m_Disp9;
     private System.Windows.Forms.Timer _decodeTimer;
-    private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem curveWinMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem keyBoardMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem barWinMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToCSVToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem osziToolStripMenuItem;
@@ -442,8 +409,9 @@ namespace vis1
         private System.Windows.Forms.ToolStripMenuItem resetToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem enableToolStripMenuItem1;
         private System.Windows.Forms.Button Send;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
+        private System.Windows.Forms.DataVisualization.Charting.Chart lineChart;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.StatusStrip statusStrip;
     }
 }
 
