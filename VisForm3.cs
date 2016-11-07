@@ -20,14 +20,15 @@ namespace vis1
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
         //PianoForm _pnf;
-        //string _bitTxt;   //WARNING: is assigned but its value is never used
+        //string _bitTxt;   //WARNING: is assigned but its yValue is never used
         #endregion
 
         #region Chart
         //private Chart chart = new Chart();
-        private Series[] _series = new Series[10];
+        private Series[] _lineSeries = new Series[10];
         private ChartArea _chartArea = new ChartArea() { Name = "ChartArea" };
-        //private int _xAxiscount = 0;
+        private long _xValue = 0;
+        private bool[] _channelSet = new bool[10];
         #endregion
 
         #region Threads
@@ -153,21 +154,31 @@ namespace vis1
             }
         }
 
-        public void AddData(int channel, float value)
+        public void AddData(int channel, float yValue)
         {
             if (lineChart.InvokeRequired)
             {
                 AddDataDelegate d = AddData;
-                Invoke(d, new object[] {channel, value});
+                Invoke(d, new object[] {channel, yValue});
             }
             //TODO Barchart
             else
             {
-                _series[channel].Points.Add(value); //Wert auf Graph zeichnen
+                if (!_channelSet[channel])
+                    _channelSet[channel] = true;
+                else
+                {
+                    _xValue++;
+
+                    for (var i = 0; i < 10; i++)
+                        _channelSet[channel] = false;
+                }
+
+                _lineSeries[channel].Points.AddXY(_xValue, yValue); //Wert auf Graph zeichnen
 
                 if (_chartArea.AxisX.Minimum + 200 < _chartArea.AxisX.Maximum)  //Dynamische X-Achse
-                    _series[channel].Points.RemoveAt(0);
-                _chartArea.AxisX.Minimum = _series[channel].Points[0].XValue;   
+                    _lineSeries[channel].Points.RemoveAt(0);
+                _chartArea.AxisX.Minimum = _lineSeries[channel].Points[0].XValue;   
 
                 lineChart.Invalidate();
             }
@@ -255,11 +266,5 @@ namespace vis1
         {
             //TODO: Reset Method
         }
-
-        private void m_MsgLb_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //TODO ?
-        }
-
     }
 }

@@ -118,7 +118,6 @@ namespace vis1
             this.m_MsgLb.Name = "m_MsgLb";
             this.m_MsgLb.Size = new System.Drawing.Size(165, 368);
             this.m_MsgLb.TabIndex = 11;
-            this.m_MsgLb.SelectedIndexChanged += new System.EventHandler(this.m_MsgLb_SelectedIndexChanged);
             // 
             // menuStrip1
             // 

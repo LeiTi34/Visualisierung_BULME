@@ -60,7 +60,7 @@ namespace vis1
             //Spuren Initialisiern
             for (var channel = 0; channel < 10; channel++)
             {
-                _series[channel] = new Series("S" + channel + 1)
+                _lineSeries[channel] = new Series("S" + channel + 1)
                 {
                     ChartType = SeriesChartType.Line,
                     ChartArea = "ChartArea",
@@ -69,7 +69,9 @@ namespace vis1
                     Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name"),
                     //IsXValueIndexed = true
                 };
-                lineChart.Series.Add(_series[channel]);
+                lineChart.Series.Add(_lineSeries[channel]);
+
+                _channelSet[channel] = false;
             }
         }
 
