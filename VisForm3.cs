@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.IO.Ports;
+using System.Threading.Tasks;
 using ZedHL;
 
 namespace vis1
@@ -29,6 +30,7 @@ namespace vis1
 
         // MethodInvoker _AddTextInvoker;
         #endregion
+        private int _displayCounter = 0;
 
         public VisForm3()
         {
@@ -45,6 +47,8 @@ namespace vis1
             m_LblAry[8] = m_Disp9;
 
             SetupSliders();   //Sliders Gnerieren
+
+
 
             //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
         }
@@ -79,7 +83,7 @@ namespace vis1
             // _decoderThr.Join();
 
             _ph.Close();
-            m_SerPort.Close();
+            m_SerPort?.Close();
             base.OnFormClosing(e);
         }
 
@@ -128,6 +132,7 @@ namespace vis1
 
         void OnDispTimer(object sender, EventArgs e)
         {
+            
             /* if (ph.CheckValsPerSecond())
             {
               string txt = string.Format("VPS: {0:F1}", ph.valsPerSec);
@@ -145,8 +150,8 @@ namespace vis1
 
         void OnDecodeTimer(object sender, EventArgs e)
         {
-            if (_ph.ParseAllPackets())
-                _doDisplay = true;
+            //Task.Run(() => _doDisplay = _ph.ParseAllPackets());
+            _doDisplay = _ph.ParseAllPackets();
         }
 
         /*void DecoderThreadLoop()
@@ -162,14 +167,26 @@ namespace vis1
             ph.Flush();
         }*/
 
-        void DisplayValues()
+        private void DisplayValues()
         {
+            for (var i = 0; i < _ph.NVals; i++)
+            {
+                _ph.form.chart1.Series[i].Points.Add(_ph.vf[i]);
+            }
+            _displayCounter++;
+            if (_displayCounter > 20)
+            {
+                _ph.form.chart1.ChartAreas[0].AxisX.Minimum++;
+                _ph.form.chart1.ChartAreas[0].AxisX.Maximum++;
+                _displayCounter--;
+            }
             for (int i = 0; i < _ph.NVals; i++)
             {
                 /* if (i == 8)
                   DisplayLineBits();
                 else */
                 m_LblAry[i].Text = String.Format("{0:F2}", _ph.vf[i]);
+                
             }
             if (_vbw.Visible)
             {
@@ -213,11 +230,10 @@ namespace vis1
         {
             // _msg = aTxt;
             // this.Invoke(_AddTextInvoker);
-            //TODO: Zeichen zählen statt Zeilen
-            if (aTxt.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
-            {
-                m_MsgLb.Items.Add(aTxt);
-            }
+            var MaxLength = 255;
+
+            m_MsgLb.Items.Add(aTxt.Length <= MaxLength ? aTxt : aTxt.Substring(0, MaxLength));  //Schneide String zu wenn > MaxLength
+
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
             if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
             {
@@ -247,14 +263,19 @@ namespace vis1
         //TODO: Absturz bei send Command, Send Button
         void OnSendEditKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 72)
+            MessageBox.Show("Test");
+            /*if (e.KeyValue == 72)
             {
                 m_SendEd.Text = "";
                 ToggleAcq();
             }
             if (e.KeyValue != 13) // CR
                 return;
-            _cmp.ParseAndSend(m_SendEd.Text);
+            _cmp.ParseAndSend(m_SendEd.Text);*/
+
+
+
+
             /* short id, val;
             string[] words = m_SendEd.Text.Split(',');
             id = short.Parse(words[0]);
@@ -276,10 +297,16 @@ namespace vis1
         void OnCurveWinOnOffMenue(object sender, EventArgs e) //Toggle Curve Window
         {
             if (curveWinMenuItem.Checked)
+            {
                 _ow.Show(); //Show Curve window
+                //Form1 form = new Form1();
+                //form.Show();
+                _ph.form.Show();
+            }
 
             else
                 _ow.Hide(); //Hide Curve window
+                //_ph.form.Hide();
         }
 
         void OnBarWinMenue(object sender, EventArgs e)  //Toggle Bar Window
@@ -303,7 +330,7 @@ namespace vis1
 
         private void setValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO: DIalog verbessern SSSetValue
+            //TODO: Dialog verbessern SSSetValue
             /*SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
             sssv.Show();
             _ph.SingleShotChannel = sssv.SingleShotChannel;
@@ -318,8 +345,6 @@ namespace vis1
                 _ph.SingleShotChannel = sssv.SingleShotChannel;
                 _ph.SingleShotTrigger = sssv.SingleShotTrigger;
             }
-            else
-            { }
             sssv.Dispose();
 
         }
@@ -327,6 +352,11 @@ namespace vis1
         private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             //TODO: Reset Method
+        }
+
+        private void m_MsgLb_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

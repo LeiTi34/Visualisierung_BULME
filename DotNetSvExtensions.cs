@@ -23,10 +23,7 @@ namespace vis1
             {
                 ch = ReadByte();   //Lesen von 1 Byte
 
-                if (ch == 0)    //Lesen bis Zeichen 0x0 eingelesen wird
-                {
-                    break;
-                }
+                if (ch == 0) break;    //Lesen bis Zeichen 0x0 eingelesen wird
 
                 m_CString[len] = ch; //Zeichen in Byte-Array schreiben
                 len++;
