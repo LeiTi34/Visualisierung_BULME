@@ -1,10 +1,7 @@
 using System;
-using System.Drawing;
 using System.Windows.Forms;
-using System.Threading;
 using System.IO.Ports;
-using System.IO;
-// using System.Diagnostics;
+using System.Threading.Tasks;
 using ZedHL;
 
 namespace vis1
@@ -17,7 +14,7 @@ namespace vis1
         OnlineCurveWin3 _ow;
         OnlineCurveControl _olc;
         VertBarWin _vbw;
-        ProtocolHandler ph;
+        ProtocolHandler _ph;
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
         PianoForm _pnf;
@@ -25,14 +22,15 @@ namespace vis1
         #endregion
 
         #region Decoder Thread
-        bool _doDisplay = false;
-        bool _doDecode = true;
+        bool _doDisplay; // = false;
+                         //bool _doDecode = true;
 
         //Thread _decoderThr; //WARNING: never used
-        string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
+        //string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
 
-        MethodInvoker _AddTextInvoker;
+        // MethodInvoker _AddTextInvoker;
         #endregion
+        private int _displayCounter = 0;
 
         public VisForm3()
         {
@@ -50,24 +48,27 @@ namespace vis1
 
             SetupSliders();   //Sliders Gnerieren
 
+
+
             //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
         }
 
         protected override void OnLoad(EventArgs e)
         {
             ConfigCommunication();
-            _cmp = new CommandParser(ph.binWr);
 
-            m_DispTimer.Interval = T_DISP;
+            _cmp = new CommandParser(_ph.binWr);
+
+            m_DispTimer.Interval = Disp;
             m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = T_THREAD;
+            _decodeTimer.Interval = Thread;
             _decodeTimer.Enabled = true;
 
             CreateOnlineCurveWin();
             CreateVertWin();
 
-            _pnf = new PianoForm(ph.binWr);
-            _AddTextInvoker = this.AddText2ListBox;
+            _pnf = new PianoForm(_ph.binWr);
+            //_AddTextInvoker = this.AddText2ListBox;
             // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
             base.OnLoad(e);
         }
@@ -81,8 +82,8 @@ namespace vis1
             // Thread.Sleep(100);
             // _decoderThr.Join();
 
-            ph.Close();
-            m_SerPort.Close();
+            _ph.Close();
+            m_SerPort?.Close();
             base.OnFormClosing(e);
         }
 
@@ -91,20 +92,20 @@ namespace vis1
             if (acqOnOffMenuItem.Checked)
             {
                 m_SerPort.DiscardInBuffer();
-                Thread.Sleep(200);
+                System.Threading.Thread.Sleep(200);
 
-                ph.SwitchAcq(true);
-                ph.Flush();
+                _ph.SwitchAcq(true);
+                _ph.Flush();
 
                 // m_DispTimer.Enabled = true;
                 // stw.Reset(); stw.Start();
             }
             else
             {
-                ph.SwitchAcq(false);
-                ph.Flush();
+                _ph.SwitchAcq(false);
+                _ph.Flush();
 
-                Thread.Sleep(200);
+                System.Threading.Thread.Sleep(200);
                 // m_SerPort.DiscardInBuffer();
                 // m_DispTimer.Enabled = false;
                 // stw.Stop();
@@ -131,6 +132,7 @@ namespace vis1
 
         void OnDispTimer(object sender, EventArgs e)
         {
+            
             /* if (ph.CheckValsPerSecond())
             {
               string txt = string.Format("VPS: {0:F1}", ph.valsPerSec);
@@ -148,11 +150,11 @@ namespace vis1
 
         void OnDecodeTimer(object sender, EventArgs e)
         {
-            if (ph.ParseAllPackets())
-                _doDisplay = true;
+            //Task.Run(() => _doDisplay = _ph.ParseAllPackets());
+            _doDisplay = _ph.ParseAllPackets();
         }
 
-        void DecoderThreadLoop()
+        /*void DecoderThreadLoop()
         {
             while (_doDecode)
             {
@@ -163,21 +165,33 @@ namespace vis1
             _doDisplay = false;
             ph.SwitchAcq(false);
             ph.Flush();
-        }
+        }*/
 
-        void DisplayValues()
+        private void DisplayValues()
         {
-            for (int i = 0; i < ph.NVals; i++)
+            for (var i = 0; i < _ph.NVals; i++)
+            {
+                _ph.form.chart1.Series[i].Points.Add(_ph.vf[i]);
+            }
+            _displayCounter++;
+            if (_displayCounter > 20)
+            {
+                _ph.form.chart1.ChartAreas[0].AxisX.Minimum++;
+                _ph.form.chart1.ChartAreas[0].AxisX.Maximum++;
+                _displayCounter--;
+            }
+            for (int i = 0; i < _ph.NVals; i++)
             {
                 /* if (i == 8)
                   DisplayLineBits();
                 else */
-                m_LblAry[i].Text = String.Format("{0:F2}", ph.vf[i]);
+                m_LblAry[i].Text = String.Format("{0:F2}", _ph.vf[i]);
+                
             }
             if (_vbw.Visible)
             {
-                for (int i = 0; i < ph.NVals; i++)
-                    _vbw.SetBarValue(i, ph.vf[i]);
+                for (int i = 0; i < _ph.NVals; i++)
+                    _vbw.SetBarValue(i, _ph.vf[i]);
                 _vbw.InvalidateGraph();
             }
             if (_ow.Visible)
@@ -188,9 +202,9 @@ namespace vis1
             }
         }
 
-        void DisplayLineBits()
+        /*void DisplayLineBits()
         {
-            /* short val = (short)ph.vf[8];
+            short val = (short)ph.vf[8];
             if ( val==0 )
               return;
             for (int i = 0; i < 6; i++)
@@ -200,8 +214,8 @@ namespace vis1
               else
                 _bitTxt[2 * i] = '0';
             }
-            m_LblAry[8].Text = _bitTxt; */
-        }
+            m_LblAry[8].Text = _bitTxt; 
+        }*/
 
         void ToggleAcq()
         {
@@ -216,15 +230,29 @@ namespace vis1
         {
             // _msg = aTxt;
             // this.Invoke(_AddTextInvoker);
-            m_MsgLb.Items.Add(aTxt);
+            var MaxLength = 255;
+
+            m_MsgLb.Items.Add(aTxt.Length <= MaxLength ? aTxt : aTxt.Substring(0, MaxLength));  //Schneide String zu wenn > MaxLength
+
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
+            if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
+            {
+                m_MsgLb.Items.RemoveAt(0);
+            }
         }
 
-        void AddText2ListBox()
+        /*void AddText2ListBox()
         {
-            m_MsgLb.Items.Add(_msg);
+            if (_msg.Length <= 255) //Überprüft die maximale Zeichenlänge pro Zeile von 256
+            {
+                m_MsgLb.Items.Add(_msg);
+            }
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
-        }
+            if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
+            {
+                m_MsgLb.Items.RemoveAt(0);
+            }
+        }*/
 
         void OnKeyDownOnGraph(object sender, KeyEventArgs e)
         {
@@ -232,16 +260,22 @@ namespace vis1
                 ToggleAcq();
         }
 
+        //TODO: Absturz bei send Command, Send Button
         void OnSendEditKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 72)
+            MessageBox.Show("Test");
+            /*if (e.KeyValue == 72)
             {
                 m_SendEd.Text = "";
                 ToggleAcq();
             }
             if (e.KeyValue != 13) // CR
                 return;
-            _cmp.ParseAndSend(m_SendEd.Text);
+            _cmp.ParseAndSend(m_SendEd.Text);*/
+
+
+
+
             /* short id, val;
             string[] words = m_SendEd.Text.Split(',');
             id = short.Parse(words[0]);
@@ -263,10 +297,16 @@ namespace vis1
         void OnCurveWinOnOffMenue(object sender, EventArgs e) //Toggle Curve Window
         {
             if (curveWinMenuItem.Checked)
+            {
                 _ow.Show(); //Show Curve window
+                //Form1 form = new Form1();
+                //form.Show();
+                _ph.form.Show();
+            }
 
             else
                 _ow.Hide(); //Hide Curve window
+                //_ph.form.Hide();
         }
 
         void OnBarWinMenue(object sender, EventArgs e)  //Toggle Bar Window
@@ -276,6 +316,47 @@ namespace vis1
 
             else
                 _vbw.Hide();    //Hide Bar window
+        }
+
+        private void saveToCSVToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _ph.SaveToCsv();
+        }
+
+        private void enableToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            _ph.SingleShotEnabled = !_ph.SingleShotEnabled;
+        }
+
+        private void setValueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO: Dialog verbessern SSSetValue
+            /*SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+            sssv.Show();
+            _ph.SingleShotChannel = sssv.SingleShotChannel;
+            _ph.SingleShotTrigger = sssv.SingleShotTrigger;*/
+
+            SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+
+            // Show testDialog as a modal dialog and determine if DialogResult = OK.
+            if (sssv.ShowDialog(this) == DialogResult.OK)
+            {
+                // Read the contents of testDialog's TextBox.
+                _ph.SingleShotChannel = sssv.SingleShotChannel;
+                _ph.SingleShotTrigger = sssv.SingleShotTrigger;
+            }
+            sssv.Dispose();
+
+        }
+
+        private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            //TODO: Reset Method
+        }
+
+        private void m_MsgLb_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

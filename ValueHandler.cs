@@ -1,8 +1,6 @@
-
 using System;
 using System.Collections.Generic;
 using System.Text;
-// using ZedGraph;
 using ZedHL;
 
 namespace vis1
