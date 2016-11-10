@@ -1,37 +1,39 @@
 namespace vis1
 {
-  partial class VisForm3
-  {
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
-    private System.ComponentModel.IContainer components = null;
-
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-    protected override void Dispose(bool disposing)
+    partial class VisForm3
     {
-      if (disposing && (components != null))
-      {
-        components.Dispose();
-      }
-      base.Dispose(disposing);
-    }
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-    #region Windows Form Designer generated code
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-    /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
-    /// </summary>
-    private void InitializeComponent()
-    {
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea lineChartArea = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.m_SendEd = new System.Windows.Forms.TextBox();
             this.m_Disp1 = new System.Windows.Forms.Label();
             this.m_Disp2 = new System.Windows.Forms.Label();
@@ -63,9 +65,11 @@ namespace vis1
             this.lineChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.barChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.lineChart)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.barChart)).BeginInit();
             this.SuspendLayout();
             // 
             // m_SendEd
@@ -75,7 +79,7 @@ namespace vis1
             this.m_SendEd.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_SendEd.Location = new System.Drawing.Point(0, 2);
             this.m_SendEd.Name = "m_SendEd";
-            this.m_SendEd.Size = new System.Drawing.Size(746, 22);
+            this.m_SendEd.Size = new System.Drawing.Size(889, 22);
             this.m_SendEd.TabIndex = 1;
             this.m_SendEd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnSendEditKeyDown);
             // 
@@ -116,7 +120,7 @@ namespace vis1
             this.m_MsgLb.FormattingEnabled = true;
             this.m_MsgLb.Location = new System.Drawing.Point(351, 27);
             this.m_MsgLb.Name = "m_MsgLb";
-            this.m_MsgLb.Size = new System.Drawing.Size(165, 368);
+            this.m_MsgLb.Size = new System.Drawing.Size(165, 615);
             this.m_MsgLb.TabIndex = 11;
             // 
             // menuStrip1
@@ -127,7 +131,7 @@ namespace vis1
             this.osziToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(848, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(991, 24);
             this.menuStrip1.TabIndex = 12;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -263,7 +267,7 @@ namespace vis1
             | System.Windows.Forms.AnchorStyles.Left)));
             this._sb.Location = new System.Drawing.Point(9, 45);
             this._sb.Name = "_sb";
-            this._sb.Size = new System.Drawing.Size(243, 370);
+            this._sb.Size = new System.Drawing.Size(243, 265);
             this._sb.TabIndex = 19;
             // 
             // m_Disp7
@@ -299,7 +303,7 @@ namespace vis1
             // Send
             // 
             this.Send.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Send.Location = new System.Drawing.Point(752, 1);
+            this.Send.Location = new System.Drawing.Point(895, 1);
             this.Send.Name = "Send";
             this.Send.Size = new System.Drawing.Size(75, 23);
             this.Send.TabIndex = 23;
@@ -311,17 +315,11 @@ namespace vis1
             this.lineChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.Name = "ChartArea1";
-            this.lineChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.lineChart.Legends.Add(legend2);
+            legend1.Name = "Legend1";
+            this.lineChart.Legends.Add(legend1);
             this.lineChart.Location = new System.Drawing.Point(522, 26);
             this.lineChart.Name = "lineChart";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.lineChart.Series.Add(series2);
-            this.lineChart.Size = new System.Drawing.Size(314, 389);
+            this.lineChart.Size = new System.Drawing.Size(457, 284);
             this.lineChart.TabIndex = 24;
             this.lineChart.Text = "chart";
             // 
@@ -331,26 +329,37 @@ namespace vis1
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.Send);
             this.groupBox1.Controls.Add(this.m_SendEd);
-            this.groupBox1.Location = new System.Drawing.Point(9, 401);
+            this.groupBox1.Location = new System.Drawing.Point(9, 651);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(827, 30);
+            this.groupBox1.Size = new System.Drawing.Size(970, 30);
             this.groupBox1.TabIndex = 25;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
             // 
             // statusStrip
             // 
-            this.statusStrip.Location = new System.Drawing.Point(0, 437);
+            this.statusStrip.Location = new System.Drawing.Point(0, 687);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(848, 22);
+            this.statusStrip.Size = new System.Drawing.Size(991, 22);
             this.statusStrip.TabIndex = 26;
             this.statusStrip.Text = "statusStrip";
+            // 
+            // barChart
+            // 
+            legend2.Name = "Legend1";
+            this.barChart.Legends.Add(legend2);
+            this.barChart.Location = new System.Drawing.Point(522, 316);
+            this.barChart.Name = "barChart";
+            this.barChart.Size = new System.Drawing.Size(457, 318);
+            this.barChart.TabIndex = 27;
+            this.barChart.Text = "barChart";
             // 
             // VisForm3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(848, 459);
+            this.ClientSize = new System.Drawing.Size(991, 709);
+            this.Controls.Add(this.barChart);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.lineChart);
@@ -374,32 +383,33 @@ namespace vis1
             ((System.ComponentModel.ISupportInitialize)(this.lineChart)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.barChart)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
-    }
+        }
 
-    #endregion
-    private System.Windows.Forms.TextBox m_SendEd;
-    private System.Windows.Forms.Label m_Disp1;
-    private System.Windows.Forms.Label m_Disp2;
-    private System.Windows.Forms.Label m_Disp3;
-    private System.Windows.Forms.Timer m_DispTimer;
-    private System.Windows.Forms.ListBox m_MsgLb;
-    private System.Windows.Forms.MenuStrip menuStrip1;
-    private System.Windows.Forms.ToolStripMenuItem controMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem acqOnOffMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem emptyReceiceBufferMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem clearMessagesMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem acqPointMenuItem;
-    private System.Windows.Forms.Label m_Disp4;
-    private System.Windows.Forms.Label m_Disp5;
-    private System.Windows.Forms.Label m_Disp6;
-    private ZedHL.SliderBank _sb;
-    private System.Windows.Forms.Label m_Disp7;
-    private System.Windows.Forms.Label m_Disp8;
-    private System.Windows.Forms.Label m_Disp9;
-    private System.Windows.Forms.Timer _decodeTimer;
+        #endregion
+        private System.Windows.Forms.TextBox m_SendEd;
+        private System.Windows.Forms.Label m_Disp1;
+        private System.Windows.Forms.Label m_Disp2;
+        private System.Windows.Forms.Label m_Disp3;
+        private System.Windows.Forms.Timer m_DispTimer;
+        private System.Windows.Forms.ListBox m_MsgLb;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem controMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem acqOnOffMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem emptyReceiceBufferMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearMessagesMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem acqPointMenuItem;
+        private System.Windows.Forms.Label m_Disp4;
+        private System.Windows.Forms.Label m_Disp5;
+        private System.Windows.Forms.Label m_Disp6;
+        private ZedHL.SliderBank _sb;
+        private System.Windows.Forms.Label m_Disp7;
+        private System.Windows.Forms.Label m_Disp8;
+        private System.Windows.Forms.Label m_Disp9;
+        private System.Windows.Forms.Timer _decodeTimer;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToCSVToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem osziToolStripMenuItem;
@@ -411,6 +421,7 @@ namespace vis1
         private System.Windows.Forms.DataVisualization.Charting.Chart lineChart;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.DataVisualization.Charting.Chart barChart;
     }
 }
 

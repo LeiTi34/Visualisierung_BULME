@@ -26,8 +26,11 @@ namespace vis1
         #region Chart
         //private Chart chart = new Chart();
         private Series[] _lineSeries = new Series[10];
-        private ChartArea _chartArea = new ChartArea() { Name = "ChartArea" };
-        private long _xValue = 0;
+        private Series[] _barSeries = new Series[10];
+        private ChartArea _lineChartArea = new ChartArea() { Name = "LineChartArea" };
+        private ChartArea _barChartArea = new ChartArea() { Name = "BarChartArea" };
+        private double _xValue = 0;
+        private int _xSize = 200;
         private bool[] _channelSet = new bool[10];
         #endregion
 
@@ -58,10 +61,9 @@ namespace vis1
         protected override void OnLoad(EventArgs e)
         {
             ConfigCommunication();
+            SetupCharts();
 
             _cmp = new CommandParser(_ph.binWr);
-
-            SetupLineChart();
 
             //Threads erstellen
             _parse = new Thread(_ph.Parse);    //Liest vom Stream
@@ -146,14 +148,20 @@ namespace vis1
                     if(_ph.Logchannel.Count > 0)
                         AddData(_ph.Logchannel.Dequeue(), _ph.Logfloat.Dequeue());  //Daten auf den Graphen zeichnen
 
+                    //lineChart.Invalidate();
+
                     Monitor.PulseAll(_ph.ChannelRead);
                 }
-                //TODO Dynamische X-Achse
-                /*_displayCounter++;
-                */
             }
         }
 
+        /* TODO bugfix
+         * - >1 Value
+         * - Speicher
+         * - Performance
+         * => Timer(ValsPerSec) für Draw-Thread
+         * - lineChart.Invalidate();!!!!!!
+         */
         public void AddData(int channel, float yValue)
         {
             if (lineChart.InvokeRequired)
@@ -161,26 +169,29 @@ namespace vis1
                 AddDataDelegate d = AddData;
                 Invoke(d, new object[] {channel, yValue});
             }
-            //TODO Barchart
             else
             {
-                if (!_channelSet[channel])
-                    _channelSet[channel] = true;
-                else
+                if (_channelSet[channel])
                 {
                     _xValue++;
+                    
+                    _lineChartArea.AxisX.Minimum = _xValue - _xSize;
+                    //if( _xValue -_xSize > 0)                      
 
                     for (var i = 0; i < 10; i++)
-                        _channelSet[channel] = false;
+                        _channelSet[i] = false;
                 }
 
-                _lineSeries[channel].Points.AddXY(_xValue, yValue); //Wert auf Graph zeichnen
+                _channelSet[channel] = true;
 
-                if (_chartArea.AxisX.Minimum + 200 < _chartArea.AxisX.Maximum)  //Dynamische X-Achse
-                    _lineSeries[channel].Points.RemoveAt(0);
-                _chartArea.AxisX.Minimum = _lineSeries[channel].Points[0].XValue;   
+                _lineSeries[channel].Points.AddXY(_xValue, yValue); //AddXY(_xValue, yValue); //Wert auf Graph zeichnen
 
-                lineChart.Invalidate();
+                if (_lineSeries[channel].Points[0].XValue < _lineChartArea.AxisX.Minimum)
+                    _lineSeries[channel].Points[0].Dispose();//.Remove(_lineSeries[channel].Points[0]);
+                //   _lineSeries[channel].Points.RemoveAt(0);
+
+                _barSeries[channel].Points.Clear();
+                _barSeries[channel].Points.AddXY(channel, yValue);
             }
         }
 

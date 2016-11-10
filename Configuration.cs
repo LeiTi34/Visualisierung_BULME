@@ -52,10 +52,18 @@ namespace vis1
             _ph = new NewProtocolHandler(_mSerPort, this);
         }
 
-        void SetupLineChart()
+        void SetupCharts()
         {
+            _barChartArea.AxisY.Minimum = _lineChartArea.AxisY.Minimum = Convert.ToDouble(ConfigurationManager.AppSettings.Get("Y1min"));
+            _barChartArea.AxisY.Maximum = _lineChartArea.AxisY.Maximum = Convert.ToDouble(ConfigurationManager.AppSettings.Get("Y1max"));
+            _lineChartArea.AxisY2.Minimum = Convert.ToDouble(ConfigurationManager.AppSettings.Get("Y2min"));
+            _lineChartArea.AxisY2.Maximum = Convert.ToDouble(ConfigurationManager.AppSettings.Get("Y2max"));
+
+
+
             //ChartArea hinzufügen
-            lineChart.ChartAreas.Add(_chartArea);
+            lineChart.ChartAreas.Add(_lineChartArea);
+            barChart.ChartAreas.Add(_barChartArea);
 
             //Spuren Initialisiern
             for (var channel = 0; channel < 10; channel++)
@@ -63,13 +71,24 @@ namespace vis1
                 _lineSeries[channel] = new Series("S" + channel + 1)
                 {
                     ChartType = SeriesChartType.Line,
-                    ChartArea = "ChartArea",
+                    ChartArea = "LineChartArea",
                     BorderWidth = 2,
                     Legend = "Legend1",
-                    Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name"),
+                    Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name")
                     //IsXValueIndexed = true
                 };
                 lineChart.Series.Add(_lineSeries[channel]);
+
+
+                _barSeries[channel] = new Series("S" + channel + 1)
+                {
+                    ChartType = SeriesChartType.Bar,
+                    ChartArea = "BarChartArea",
+                    Legend = "Legend1",
+                    Name = ConfigurationManager.AppSettings.Get("S" + channel + 1 + "Name")
+                    //IsXValueIndexed = true
+                };
+                barChart.Series.Add(_barSeries[channel]);
 
                 _channelSet[channel] = false;
             }
