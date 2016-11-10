@@ -4,11 +4,11 @@ using System.Windows.Forms;
 
 namespace vis1
 {
-    public partial class ChooseCOM : Form
+    public partial class ChooseCom : Form
     {
         public string Port = "";
 
-        public ChooseCOM()
+        public ChooseCom()
         {
             InitializeComponent();
 
@@ -25,7 +25,7 @@ namespace vis1
         {
             if (PortsLB.SelectedIndex == -1)
             {
-                MessageBox.Show("Please select an Item first!");    
+                MessageBox.Show(@"Please select an Item first!");    
             }
             else
             {

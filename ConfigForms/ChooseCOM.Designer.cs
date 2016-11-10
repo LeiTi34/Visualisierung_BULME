@@ -2,7 +2,7 @@
 
 namespace vis1
 {
-    partial class ChooseCOM
+    partial class ChooseCom
     {
         /// <summary>
         /// Required designer variable.
@@ -97,7 +97,7 @@ namespace vis1
             this.Controls.Add(this.buttonOK);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.PortsLB);
-            this.Name = "ChooseCOM";
+            this.Name = "ChooseCom";
             this.Text = "Choose COM-Port";
             this.ResumeLayout(false);
             this.PerformLayout();
