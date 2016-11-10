@@ -1,46 +1,50 @@
-/*!
- * @file VisForm3.cs
- * @author Bulme
- * @brief Beinhaltet Klasse für grafische Oberfläche
- */ 
 using System;
+using System.Configuration;
 using System.Windows.Forms;
 using System.IO.Ports;
-// using System.Diagnostics;
+using System.Threading;
+using System.Windows.Forms.DataVisualization.Charting;
 using ZedHL;
 
 namespace vis1
 {
-    partial class VisForm3 : Form, IPrintCb, SliderCB
+    public partial class VisForm3 : Form, IPrintCB, SliderCB
     {
         #region Member Variables
-
-        readonly Label[] _mLblAry = new Label[9];
-        SerialPort _mSerPort;   //!< Enthaelt COM-Port
+        Label[] _mLblAry = new Label[9];
+        SerialPort _mSerPort;
         OnlineCurveWin3 _ow;
         OnlineCurveControl _olc;
-        VertBarWin _vbw;
+        //VertBarWin _vbw;
         ProtocolHandler _ph;
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
-        PianoForm _pnf;
-        //string _bitTxt;   //WARNING: is assigned but its value is never used
+        //PianoForm _pnf;
+        //string _bitTxt;   //WARNING: is assigned but its yValue is never used
         #endregion
 
-        #region Decoder Thread
-        bool _doDisplay = false;
-        bool _doDecode = true;
+        #region Chart
+        //private Chart chart = new Chart();
+        private Series[] _lineSeries = new Series[10];
+        private Series[] _barSeries = new Series[10];
+        private ChartArea _lineChartArea = new ChartArea() { Name = "LineChartArea" };
+        private ChartArea _barChartArea = new ChartArea() { Name = "BarChartArea" };
+        private double _xValue = 0;
+        private int _xSize = 200;
+        private bool[] _channelSet = new bool[10];
+        #endregion
 
-        //Thread _decoderThr; //WARNING: never used
-        string _msg = ""; //WARNING: is never assigned to, and will always have its default value null
-
-        MethodInvoker _addTextInvoker;
+        #region Threads
+        private Thread _parse;
+        private Thread _draw;
+        public delegate void AddDataDelegate(int channel, float value);
         #endregion
 
         public VisForm3()
         {
             InitializeComponent();
 
+            //TODO ?
             _mLblAry[0] = m_Disp1;
             _mLblAry[1] = m_Disp2;
             _mLblAry[2] = m_Disp3;
@@ -52,26 +56,22 @@ namespace vis1
             _mLblAry[8] = m_Disp9;
 
             SetupSliders();   //Sliders Gnerieren
-
-            //_bitTxt = "0 0 0 0 0 0xx";  //WARNING: is assigned but its value is never used
         }
 
         protected override void OnLoad(EventArgs e)
         {
             ConfigCommunication();
-            _cmp = new CommandParser(_ph.BinWr);
+            SetupCharts();
 
-            m_DispTimer.Interval = Disp;
-            m_DispTimer.Enabled = true;
-            _decodeTimer.Interval = Thread;
-            _decodeTimer.Enabled = true;
+            _cmp = new CommandParser(_ph.binWr);
 
-            CreateOnlineCurveWin();
-            CreateVertWin();
+            //Threads erstellen
+            _parse = new Thread(_ph.Parse);    //Liest vom Stream
+            _parse.Start();
 
-            _pnf = new PianoForm(_ph.BinWr);
-            _addTextInvoker = AddText2ListBox;
-            // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
+            _draw = new Thread(AddToChart);    //Zeichnet den Graph
+            _draw.Start();
+
             base.OnLoad(e);
         }
 
@@ -84,8 +84,12 @@ namespace vis1
             // Thread.Sleep(100);
             // _decoderThr.Join();
 
+            _parse.Abort();
+            _draw.Abort();
+
             _ph.Close();
-            _mSerPort.Close();
+            _mSerPort?.Close();
+
             base.OnFormClosing(e);
         }
 
@@ -94,10 +98,10 @@ namespace vis1
             if (acqOnOffMenuItem.Checked)
             {
                 _mSerPort.DiscardInBuffer();
-                System.Threading.Thread.Sleep(200);
+                Thread.Sleep(200);
 
                 _ph.SwitchAcq(true);
-                _ph.Flush();
+                _ph.Flush();    
 
                 // m_DispTimer.Enabled = true;
                 // stw.Reset(); stw.Start();
@@ -107,7 +111,7 @@ namespace vis1
                 _ph.SwitchAcq(false);
                 _ph.Flush();
 
-                System.Threading.Thread.Sleep(200);
+                Thread.Sleep(200);
                 // m_SerPort.DiscardInBuffer();
                 // m_DispTimer.Enabled = false;
                 // stw.Stop();
@@ -132,116 +136,109 @@ namespace vis1
             _olc.SetAcqPoints(acqPointMenuItem.Checked);
         }
 
-        void OnDispTimer(object sender, EventArgs e)
+        private void AddToChart(object stateinfo)       //TODO In klasse Auslagern
         {
-            /* if (ph.CheckValsPerSecond())
+            while (true)
             {
-              string txt = string.Format("VPS: {0:F1}", ph.valsPerSec);
-              PrintMsg(txt);
-            } */
-            // if( ph.ParseAllPackets() )
-            // DisplayValues();
+                lock (_ph.ChannelRead)
+                {
+                    if (_ph.Logchannel.Count == 0)
+                        Monitor.Wait(_ph.ChannelWrite); //Warten wenn keine Daten verfügbar sind
 
-            if (_doDisplay)
-            {
-                DisplayValues();
-                _doDisplay = false;
+                    if(_ph.Logchannel.Count > 0)
+                        AddData(_ph.Logchannel.Dequeue(), _ph.Logfloat.Dequeue());  //Daten auf den Graphen zeichnen
+
+                    //lineChart.Invalidate();
+
+                    Monitor.PulseAll(_ph.ChannelRead);
+                }
             }
         }
 
-        void OnDecodeTimer(object sender, EventArgs e)
+        /* TODO bugfix
+         * - >1 Value
+         * - Speicher
+         * - Performance
+         * => Timer(ValsPerSec) für Draw-Thread
+         * - lineChart.Invalidate();!!!!!!
+         */
+        public void AddData(int channel, float yValue)
         {
-            if (_ph.ParseAllPackets())
-                _doDisplay = true;
+            if (lineChart.InvokeRequired)
+            {
+                AddDataDelegate d = AddData;
+                Invoke(d, new object[] {channel, yValue});
+            }
+            else
+            {
+                if (_channelSet[channel])
+                {
+                    _xValue++;
+                    
+                    _lineChartArea.AxisX.Minimum = _xValue - _xSize;
+                    //if( _xValue -_xSize > 0)                      
+
+                    for (var i = 0; i < 10; i++)
+                        _channelSet[i] = false;
+                }
+
+                _channelSet[channel] = true;
+
+                _lineSeries[channel].Points.AddXY(_xValue, yValue); //AddXY(_xValue, yValue); //Wert auf Graph zeichnen
+
+                if (_lineSeries[channel].Points[0].XValue < _lineChartArea.AxisX.Minimum)
+                    _lineSeries[channel].Points[0].Dispose();//.Remove(_lineSeries[channel].Points[0]);
+                //   _lineSeries[channel].Points.RemoveAt(0);
+
+                _barSeries[channel].Points.Clear();
+                _barSeries[channel].Points.AddXY(channel, yValue);
+            }
         }
 
-        /*void DecoderThreadLoop()
+        /*void ToggleAcq()
         {
-            while (_doDecode)
-            {
-                System.Threading.Thread.Sleep(Thread);
-                if (_ph.ParseAllPackets())
-                    _doDisplay = true;
-            }
-            _doDisplay = false;
-            _ph.SwitchAcq(false);
-            _ph.Flush();
-        }*/
-
-        void DisplayValues()
-        {
-            for (int i = 0; i < _ph.NVals; i++)
-            {
-                /* if (i == 8)
-                  DisplayLineBits();
-                else */
-                _mLblAry[i].Text = $@"{_ph.Vf[i]:F2}";
-            }
-            if (_vbw.Visible)
-            {
-                for (int i = 0; i < _ph.NVals; i++)
-                    _vbw.SetBarValue(i, _ph.Vf[i]);
-                _vbw.InvalidateGraph();
-            }
-            if (_ow.Visible)
-            {
-                // _ow.Invalidate();
-                // _olc.AxisChange();
-                _olc.Invalidate();
-            }
-        }
-
-        /*void DisplayLineBits()
-        {
-            /* short val = (short)ph.vf[8];
-            if ( val==0 )
-              return;
-            for (int i = 0; i < 6; i++)
-            {
-              if (  val & (1 << i)   )
-                _bitTxt[2 * i] = '1';
-              else
-                _bitTxt[2 * i] = '0';
-            }
-            m_LblAry[8].Text = _bitTxt;
-        }*/
-
-        void ToggleAcq()
-        {
-            acqOnOffMenuItem.Checked = !acqOnOffMenuItem.Checked;
+            if (acqOnOffMenuItem.Checked)
+                acqOnOffMenuItem.Checked = false;
+            else
+                acqOnOffMenuItem.Checked = true;
             OnAcqOnOffMenue(null, null);
-        }
+        }*/
 
         public void DoPrint(string aTxt)
         {
-            // _msg = aTxt;
-            // this.Invoke(_AddTextInvoker);
-            m_MsgLb.Items.Add(aTxt);
+            var maxLength = 255;
+
+            m_MsgLb.Items.Add(aTxt.Length <= maxLength ? aTxt : aTxt.Substring(0, maxLength));  //Schneide String zu wenn > MaxLength
+
             m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
+            if (m_MsgLb.Items.Count > 255)  //Löscht 1. Zeile wenn maximale Zeilenanzahl von 255 Überschritten wurde
+            {
+                m_MsgLb.Items.RemoveAt(0);
+            }
         }
 
-        void AddText2ListBox()
-        {
-            m_MsgLb.Items.Add(_msg);
-            m_MsgLb.SetSelected(m_MsgLb.Items.Count - 1, true);
-        }
-
-        void OnKeyDownOnGraph(object sender, KeyEventArgs e)
+        /*void OnKeyDownOnGraph(object sender, KeyEventArgs e)
         {
             if (e.KeyValue == 72)
                 ToggleAcq();
-        }
+        }*/
 
+        //TODO: Absturz bei send Command, Send Button
         void OnSendEditKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyValue == 72)
+            MessageBox.Show(@"Test");
+            /*if (e.KeyValue == 72)
             {
                 m_SendEd.Text = "";
                 ToggleAcq();
             }
             if (e.KeyValue != 13) // CR
                 return;
-            _cmp.ParseAndSend(m_SendEd.Text);
+            _cmp.ParseAndSend(m_SendEd.Text);*/
+
+
+
+
             /* short id, val;
             string[] words = m_SendEd.Text.Split(',');
             id = short.Parse(words[0]);
@@ -250,40 +247,35 @@ namespace vis1
             // m_BinWr.WriteSv16((byte)id, val);
             ph.binWr.Flush(); */
         }
-        /*!
-         * Toggeln des Keyboard-Winows
-         */
-        void OnKeyBoardMenue(object sender, EventArgs e)    //Toggle Keyboard Window
-        {
-            if (keyBoardMenuItem.Checked)
-                _pnf.Show();    //Show Keyboard window
 
-            else
-                _pnf.Hide();    //Hide Keyboard window
+        private void saveToCSVToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _ph.SaveToCsv();
         }
 
-        /*!
-         * Toggeln des Curve-Windows
-         */
-        void OnCurveWinOnOffMenue(object sender, EventArgs e) //Toggle Curve Window
+        private void enableToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (curveWinMenuItem.Checked)
-                _ow.Show(); //Show Curve window
-
-            else
-                _ow.Hide(); //Hide Curve window
+            _ph.SingleShotEnabled = !_ph.SingleShotEnabled;
         }
 
-        /*!
-         * Toggeln des Bar-Windows
-         */
-        void OnBarWinMenue(object sender, EventArgs e)  //Toggle Bar Window
+        private void setValueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (barWinMenuItem.Checked)
-                _vbw.Show();    //Show Bar window
+            //TODO: Dialog verbessern SSSetValue
 
-            else
-                _vbw.Hide();    //Hide Bar window
+            SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+
+            if (sssv.ShowDialog(this) == DialogResult.OK)
+            {
+                _ph.SingleShotChannel = sssv.SingleShotChannel;
+                _ph.SingleShotTrigger = sssv.SingleShotTrigger;
+            }
+            sssv.Dispose();
+
+        }
+
+        private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            //TODO: Reset Method
         }
     }
 }
