@@ -91,9 +91,15 @@ namespace vis1
         void CreateVertWin()    //Bar Window generiern
         {
             _vbw = new VertBarWin();
-            string[] names = { "1", "2", "3", "4", "5", "6" };    //Namen der Bars definieren
+            string[] names = new string[10];// { "1", "2", "3", "4", "5", "6" };    //Namen der Bars definieren
+            for( var track = 0; track < 10; track++)
+            {
+                names[track] = ConfigurationManager.AppSettings.Get("S" + track + "Name");
+            }
             _vbw.CreateBars2(names);
-            _vbw.SetY1Scale(false, -10, 800); //Scale
+            _vbw.SetY1Scale(false,
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1min")),
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1max"))); //Scale
             _vbw.AxisChange();
         }
 
