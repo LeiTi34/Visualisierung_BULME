@@ -14,23 +14,17 @@ namespace vis1
         {
         }
 
-        public string ReadCString() //String einlesen bis 0x0
+        public string ReadCString() //String einlesen bis 0x0 oder 0xF
         {
             int len = 0;    
             byte ch;    //Hilfsvariable zum einlesen
 
-            while (true)
+            do
             {
-                ch = ReadByte();   //Lesen von 1 Byte
-
-                if (ch == 0)    //Lesen bis Zeichen 0x0 eingelesen wird
-                {
-                    break;
-                }
-
+                ch = ReadByte(); //Lesen von 1 Byte
                 m_CString[len] = ch; //Zeichen in Byte-Array schreiben
                 len++;
-            }
+            } while (ch != 0x0 && ch != 0xF );
             string ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
             return ret;   //String zurückliefern
         }

@@ -88,6 +88,16 @@ namespace vis1
             binWr.WriteSv16(aId, aVal);   //Sende ID + 2Byte Daten
         }
 
+        private void AddQueue()
+        {
+
+        }
+
+        private void AddValue()
+        {
+            
+        }
+
         // parses all ProtocolPacket's with all Variables
         public virtual bool ParseAllPackets()
         {
@@ -296,250 +306,76 @@ namespace vis1
 
         private const int QueuMaxSize = 20 * 100;
 
+        private int ID;
+        private float value;
+
+        private void AddQueue()
+        {
+            logfloat.Enqueue(value); //Daten in Query speichern
+            logchannel.Enqueue(ID); //Kanalnummer in Query Speichern   
+
+            if (logchannel.Count > QueuMaxSize)
+            {
+                logfloat.Dequeue();
+                logchannel.Dequeue();
+            }
+        }
+
+        private void AddValue()
+        {
+            vf[ID] = value;
+            ivs[ID].AddValue(vf[ID]);
+            AddQueue();
+        }
+        
         public override bool ParseAllPackets()
         {
-            bool ret = true;
-            if (m_P.BytesToRead < 3) //Mindestens 3 Byte (ID + 2 Byte Daten)
+            if (m_P.BytesToRead < 4) //Mindestens 3 Byte (ID + 2 Byte Daten)
             {
                 return false;
             }
 
-            while (m_P.BytesToRead >= 3)
+            while (m_P.BytesToRead >= 4)
             {
-                int i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+                var i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
 
                 if (i == 9) //ID 9: string SV
                 {
                     _printCB.DoPrint(m_BinRd.ReadCString());
-                    //continue;
                 }
                 else if (i >= 0 && i <= 8) //ID 0 bis 8: 3.13 Format
                 {
-                    vf[i] = m_BinRd.Read3P13();
-                    ivs[i].AddValue(vf[i]);
-                    //continue;
+                    value = m_BinRd.Read3P13();
+                    ID = i;
                 }
-                else if (i >= 10 && i <= 19) //ID 10 bis 19: short (2 Byte)
+                else if (i >= 10 &&
+                    i <= 19) //ID 10 bis 19: short (2 Byte)
                 {
                     var buf = m_BinRd.ReadInt16();
-                    var buff = C1 * buf;
-                    var channel = i - 10;
-                    SingleShotShow = false;
-
-                    /*if (_scal == Scaling.Q15)
+                    ID = i - 10;
+                    if (_scal == Scaling.Q15)
                     {
-                        vf[channel] = buff;
-                        ivs[channel].AddValue(vf[channel]);
-
+                        value = C1*buf;
                     }
                     else
                     {
-                        vf[channel] = buf;
-                        ivs[channel].AddValue(vf[channel]);
+                        value = buf;
                     }
-                    if (SingleShotEnabled)
-                    {
-                        vf[9] = SingleShotTrigger;
-                        ivs[9].AddValue(vf[9]);
-
-                        if (SingleShotCount <= 20*200)
-                        {
-                            if (SingleShotTrigger >= buf && channel == SingleShotChannel)
-                            {
-                                vf[channel] = buff;
-                                ivs[channel].AddValue(vf[channel]);
-
-                                SingleShotCount++;
-                                SingleShotShow = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SingleShotShow = false;
-                        /*vf[9] = 0;
-                        ivs[9].AddValue(vf[9]);*/
-                    //}
-                    //return ret;
-                    /*** SINGLE-SHOT ***
-                    if (SingleShotEnabled)
-                    {
-                        if (SingleShotCount <= 20*200)
-                        {
-                            if (SingleShotRunning || (SingleShotTrigger >= buf && channel == SingleShotChannel))
-                            {
-                                SingleShotCount++;
-
-                                if (SingleShotCount >= 20*200)
-                                {
-                                    SingleShotRunning = false;
-                                    //SingleShotEnabled = false;
-                                    SingleShotCount = 0;
-                                }
-                                else
-                                {
-                                    SingleShotRunning = true;
-                                }
-
-            */
-                                if (_scal == Scaling.Q15)
-                                {
-                                    vf[channel] = buff;
-                                    ivs[channel].AddValue(vf[channel]);
-
-                                    logfloat.Enqueue(buff); //Daten in Query speichern
-                                    logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
-
-                                    if (logchannel.Count > QueuMaxSize)
-                                    {
-                                        logfloat.Dequeue();
-                                        logchannel.Dequeue();
-                                    }
-                                }
-                                else
-                                {
-                                    vf[channel] = buf;
-                                    ivs[channel].AddValue(vf[channel]);
-
-                                    logshort.Enqueue(buf); //Daten in Query speichern
-                                    logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                                    if (logchannel.Count > QueuMaxSize)
-                                    {
-                                        logshort.Dequeue();
-                                        logchannel.Dequeue();
-                                    }
-                                }/*
-
-                            }
-                            else
-                            {
-
-                                if (_scal == Scaling.Q15)
-                                {
-                                    vf[channel] = buff;
-                                    ivs[channel].AddValue(vf[channel]);
-                                }
-                                else
-                                {
-                                    vf[channel] = buf;
-                                    ivs[channel].AddValue(vf[channel]);
-                                }
-
-                                ret = false;
-                            }
-                        }
-                        else
-                        {
-                            if (_scal == Scaling.Q15)
-                            {
-                                vf[channel] = buff;
-                                ivs[channel].AddValue(vf[channel]);
-                            }
-                            else
-                            {
-                                vf[channel] = buf;
-                                ivs[channel].AddValue(vf[channel]);
-                            }
-
-                            ret = false;
-                        }
-                    }
-                    else
-                    {
-
-                        if (_scal == Scaling.Q15) //_scal == 1
-                            buf = C1 * buf;
-                        //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
-                        if (_scal == Scaling.Q15)
-                        {
-                            vf[channel] = buff;
-                            ivs[channel].AddValue(vf[channel]);
-
-                            logfloat.Enqueue(buff); //Daten in Query speichern
-                            logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
-
-                            if (logchannel.Count > QueuMaxSize)
-                            {
-                                logfloat.Dequeue();
-                                logchannel.Dequeue();
-                            }
-                        }
-                        else
-                        {
-                            vf[channel] = buf;
-                            ivs[channel].AddValue(vf[channel]);
-
-                            logshort.Enqueue(buf); //Daten in Query speichern
-                            logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                            if (logchannel.Count > QueuMaxSize)
-                            {
-                                logshort.Dequeue();
-                                logchannel.Dequeue();
-                            }
-                        }
-                        ret = false;
-                    }
-                    /*** SINGLE-SHOT END ***/
                 }
                 else if (i >= 20 && i <= 29) //ID 20 bis 29: float
                 {
-                    /*** SINGLE-SHOT ***
-                    if (SingleShotEnabled)
-                     {
-                         var buf = m_BinRd.ReadSingle();
-                         if (SingleShotRunning || (SingleShotTrigger >= buf && i - 20 == SingleShotChannel))
-                         {
-                             SingleShotRunning = true;
-                             vf[i - 20] = m_BinRd.ReadSingle();
-                             ivs[i - 20].AddValue(vf[i - 20]);
-
-                             logfloat.Enqueue(vf[i - 20]); //Daten in Query speichern
-                             logchannel.Enqueue(i - 20); //Kanalnummer in Query Speichern
-
-                             if (logfloat.Count > QueuMaxSize)
-                             {
-                                 logfloat.Dequeue();
-                                 logchannel.Dequeue();
-                             }
-
-                             if (i - 20 == SingleShotChannel)
-                             {
-                                 SingleShotCount++;
-                             }
-
-                             if (SingleShotCount <= 21*100)
-                             {
-                                 SingleShotRunning = false;
-                                 SingleShotEnabled = false;
-                             }
-
-                         }
-                         else
-                         {
-                            return false;
-                         }
-                     }
-
-
-                        /*** SINGLE-SHOT END ***/
-                    var buf = m_BinRd.ReadSingle();
-                    var channel = i - 20;
-                    vf[channel] = buf;
-                    ivs[channel].AddValue(vf[channel]);
-
-                    logfloat.Enqueue(buf); //Daten in Query speichern
-                    logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                    if (logchannel.Count > QueuMaxSize)
-                    {
-                        logfloat.Dequeue();
-                        logchannel.Dequeue();
-                    }
-                    //}
+                    value = m_BinRd.ReadSingle();
+                    ID = i - 20;
                 }
-                // m_BinRd.Dispose();
+
+                if (m_BinRd.ReadByte() == 0xF)
+                {
+                    AddValue();
+                }
+                else
+                {
+                    while (m_BinRd.ReadByte() != 0xF) ;
+                }
             }
             return true;
         }
@@ -579,15 +415,21 @@ namespace vis1
                         w.WriteLine(line);
                         w.Flush();
 
-                        bool[] set = { false, false, false, false, false, false, false, false, false, false };
-                        string[] value = { "", "", "", "", "", "", "", "", "", "" };
+                        bool[] set = new bool[10];
+                        string[] value = new string[10];
+
+                        for (var i = 0; i < 10; i++)
+                        {
+                            set[i] = false;
+                            value[i] = "";
+                        }
 
                         //While data in Query
                         var n = 1;
                         while (logchannel.Count + logfloat.Count + logshort.Count > 0)
                         {
                             var fullchannel = logchannel.Dequeue(); //Get Channel-Number
-                            int channel, type;
+                            int channel;
 
                             if (fullchannel >= 10 && fullchannel <= 19)
                             {
@@ -641,95 +483,4 @@ namespace vis1
             logchannel.Clear();
         }
     }
-
-    /*
-     * Liest folgende Werte bei IDs aus
-     *  ID      Wert
-     *  0...3   1.11 Format
-     *  9       String
-     */
-    /*class SvIdProtocolHandler2 : SvIdProtocolHandler
-    {
-        public SvIdProtocolHandler2(SerialPort aPort, IPrintCB aPrintObj)
-          : base(aPort, aPrintObj)
-        {
-        }
-
-        public override bool ParseAllPackets()
-        {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
-            {
-                return false;
-            }
-
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
-            {
-                i = m_BinRd.ReadByte() - 1; //Einlesen von ID
-
-                if (i == 9) //ID 9: string SV
-                {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
-                                                                //continue;
-                }
-                else if (i >= 0 && i <= 3)
-                {
-                    vf[i] = m_BinRd.Read1P11();
-                }
-
-                // if( i>=1 && i<=3 ) vf[i] = m_BinRd.ReadInt16();
-
-                ivs[i].AddValue(vf[i]);
-            }
-            return true;
-        }
-    }*/
-
-    /*
-     * Liest folgende Werte bei IDs aus
-     *  ID      Wert
-     *  0...1   Float
-     *  2...3   (NVals?)
-     *  9       String
-     */
-    /*class HPerfProtocolHandler : SvIdProtocolHandler
-    {
-        public HPerfProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
-          : base(aPort, aPrintObj)
-        {
-            NVals = 4; NBytes = 3 * NVals;
-        }
-
-        public override bool ParseAllPackets()
-        {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
-            {
-                return false;
-            }
-
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
-            {
-                i = m_P.ReadByte() - 1; //ID einlesen
-
-                if (i == 9) //ID 9: string SV
-                {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
-                }
-                else if (i >= 0 && i <= 1) //ID 0 bis 1: float-SV
-                {
-                    vf[i] = m_BinRd.ReadSingle();   //4 Byte float einlesen
-                                                    // ivs[i].AddValue(vf[i]);
-                }
-                else if (i >= 2 && i <= 3)  //ID 2 bis 3: ??
-                {
-                    int NVals = (byte)m_P.ReadByte();
-                    brb[i].AddBytes(m_P.BaseStream, 2 * NVals);
-                }
-            }
-            return true;
-        }
-    }*/
 }
