@@ -220,7 +220,7 @@ namespace vis1
     /*
      * Liest folgende Werte bei IDs aus
      *  ID      Wert
-     *  0...8   3.13 Format
+     *  0....8  3.13 Format
      *  9       String
      *  10...19 Short
      *  20...29 Float
@@ -326,204 +326,37 @@ namespace vis1
                     var channel = i - 10;
                     SingleShotShow = false;
 
-                    /*if (_scal == Scaling.Q15)
+                    if (_scal == Scaling.Q15)
                     {
                         vf[channel] = buff;
                         ivs[channel].AddValue(vf[channel]);
 
+                        logfloat.Enqueue(buff); //Daten in Query speichern
+                        logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
+
+                        if (logchannel.Count > QueuMaxSize)
+                        {
+                            logfloat.Dequeue();
+                            logchannel.Dequeue();
+                        }
                     }
                     else
                     {
                         vf[channel] = buf;
                         ivs[channel].AddValue(vf[channel]);
-                    }
-                    if (SingleShotEnabled)
-                    {
-                        vf[9] = SingleShotTrigger;
-                        ivs[9].AddValue(vf[9]);
 
-                        if (SingleShotCount <= 20*200)
+                        logshort.Enqueue(buf); //Daten in Query speichern
+                        logchannel.Enqueue(i); //Kanalnummer in Query Speichern
+
+                        if (logchannel.Count > QueuMaxSize)
                         {
-                            if (SingleShotTrigger >= buf && channel == SingleShotChannel)
-                            {
-                                vf[channel] = buff;
-                                ivs[channel].AddValue(vf[channel]);
-
-                                SingleShotCount++;
-                                SingleShotShow = true;
-                            }
+                            logshort.Dequeue();
+                            logchannel.Dequeue();
                         }
                     }
-                    else
-                    {
-                        SingleShotShow = false;
-                        /*vf[9] = 0;
-                        ivs[9].AddValue(vf[9]);*/
-                    //}
-                    //return ret;
-                    /*** SINGLE-SHOT ***
-                    if (SingleShotEnabled)
-                    {
-                        if (SingleShotCount <= 20*200)
-                        {
-                            if (SingleShotRunning || (SingleShotTrigger >= buf && channel == SingleShotChannel))
-                            {
-                                SingleShotCount++;
-
-                                if (SingleShotCount >= 20*200)
-                                {
-                                    SingleShotRunning = false;
-                                    //SingleShotEnabled = false;
-                                    SingleShotCount = 0;
-                                }
-                                else
-                                {
-                                    SingleShotRunning = true;
-                                }
-
-            */
-                                if (_scal == Scaling.Q15)
-                                {
-                                    vf[channel] = buff;
-                                    ivs[channel].AddValue(vf[channel]);
-
-                                    logfloat.Enqueue(buff); //Daten in Query speichern
-                                    logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
-
-                                    if (logchannel.Count > QueuMaxSize)
-                                    {
-                                        logfloat.Dequeue();
-                                        logchannel.Dequeue();
-                                    }
-                                }
-                                else
-                                {
-                                    vf[channel] = buf;
-                                    ivs[channel].AddValue(vf[channel]);
-
-                                    logshort.Enqueue(buf); //Daten in Query speichern
-                                    logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                                    if (logchannel.Count > QueuMaxSize)
-                                    {
-                                        logshort.Dequeue();
-                                        logchannel.Dequeue();
-                                    }
-                                }/*
-
-                            }
-                            else
-                            {
-
-                                if (_scal == Scaling.Q15)
-                                {
-                                    vf[channel] = buff;
-                                    ivs[channel].AddValue(vf[channel]);
-                                }
-                                else
-                                {
-                                    vf[channel] = buf;
-                                    ivs[channel].AddValue(vf[channel]);
-                                }
-
-                                ret = false;
-                            }
-                        }
-                        else
-                        {
-                            if (_scal == Scaling.Q15)
-                            {
-                                vf[channel] = buff;
-                                ivs[channel].AddValue(vf[channel]);
-                            }
-                            else
-                            {
-                                vf[channel] = buf;
-                                ivs[channel].AddValue(vf[channel]);
-                            }
-
-                            ret = false;
-                        }
-                    }
-                    else
-                    {
-
-                        if (_scal == Scaling.Q15) //_scal == 1
-                            buf = C1 * buf;
-                        //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
-                        if (_scal == Scaling.Q15)
-                        {
-                            vf[channel] = buff;
-                            ivs[channel].AddValue(vf[channel]);
-
-                            logfloat.Enqueue(buff); //Daten in Query speichern
-                            logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
-
-                            if (logchannel.Count > QueuMaxSize)
-                            {
-                                logfloat.Dequeue();
-                                logchannel.Dequeue();
-                            }
-                        }
-                        else
-                        {
-                            vf[channel] = buf;
-                            ivs[channel].AddValue(vf[channel]);
-
-                            logshort.Enqueue(buf); //Daten in Query speichern
-                            logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                            if (logchannel.Count > QueuMaxSize)
-                            {
-                                logshort.Dequeue();
-                                logchannel.Dequeue();
-                            }
-                        }
-                        ret = false;
-                    }
-                    /*** SINGLE-SHOT END ***/
                 }
                 else if (i >= 20 && i <= 29) //ID 20 bis 29: float
                 {
-                    /*** SINGLE-SHOT ***
-                    if (SingleShotEnabled)
-                     {
-                         var buf = m_BinRd.ReadSingle();
-                         if (SingleShotRunning || (SingleShotTrigger >= buf && i - 20 == SingleShotChannel))
-                         {
-                             SingleShotRunning = true;
-                             vf[i - 20] = m_BinRd.ReadSingle();
-                             ivs[i - 20].AddValue(vf[i - 20]);
-
-                             logfloat.Enqueue(vf[i - 20]); //Daten in Query speichern
-                             logchannel.Enqueue(i - 20); //Kanalnummer in Query Speichern
-
-                             if (logfloat.Count > QueuMaxSize)
-                             {
-                                 logfloat.Dequeue();
-                                 logchannel.Dequeue();
-                             }
-
-                             if (i - 20 == SingleShotChannel)
-                             {
-                                 SingleShotCount++;
-                             }
-
-                             if (SingleShotCount <= 21*100)
-                             {
-                                 SingleShotRunning = false;
-                                 SingleShotEnabled = false;
-                             }
-
-                         }
-                         else
-                         {
-                            return false;
-                         }
-                     }
-
-
-                        /*** SINGLE-SHOT END ***/
                     var buf = m_BinRd.ReadSingle();
                     var channel = i - 20;
                     vf[channel] = buf;
