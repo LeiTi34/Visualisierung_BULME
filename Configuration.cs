@@ -10,8 +10,6 @@ namespace vis1
 {
     partial class VisForm3
     {
-        public int Xmin;
-        public int Xmax;
         #region Timing
         private const double FSample = 100;
         private const double Sample = 1 / FSample;
@@ -19,8 +17,10 @@ namespace vis1
         private const int Thread = 20; // milliSec
         #endregion
 
+	    private IValueSink []_ivsBuffer = new IValueSink[10];
+
         //Konfigurationsdialog zur Auswahl eines COM-Ports
-        void ConfigCommunication()
+        bool ConfigCommunication()
         {
             var comport = "";
             do
@@ -43,24 +43,26 @@ namespace vis1
             catch (IOException)
             {
                 MessageBox.Show(@"IO Exception: " + comport + @" konnte nicht gefunden werden!");
-                Environment.Exit(1);
+	            return false;
             }
             catch (Exception)
             {
                 MessageBox.Show(@"Exception: " + comport + @" konnte nicht gefunden werden!");
-                Environment.Exit(1);
+                return false;
             }
             finally
             {
                 //statusStrip.Items.Add("COM-Port opened successful");
                 _ph = new BufProtocolHandler(m_SerPort, this);
             }
+			return true;
+		}
 
-            //_ph = new SvIdProtocolHandler(m_SerPort, this);
-            //_ph = new SvIdProtocolHandler3(m_SerPort, this);
-            // _ph = new HPerfProtocolHandler(m_SerPort, this);
-
-        }
+	    void CloseCommunication()
+	    {
+		    m_SerPort.Close();
+			_ph.Close();
+	    }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
 
@@ -92,7 +94,7 @@ namespace vis1
                 if (Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Enable")))    //Enable von app.conf file Lesen
                 {
                     //Werte aus app.conf file einlesen und dem richtigen Track zuweisen
-                    _ph.ivs[track-1] = _olc.SetCurve2(
+                    _ivsBuffer[track-1] = _olc.SetCurve2(
                         track-1,  //ID
                         ConfigurationManager.AppSettings.Get("S" + track + "Name"), //Name
                         Color.FromName(ConfigurationManager.AppSettings.Get("S" + track + "Color")),    //Color

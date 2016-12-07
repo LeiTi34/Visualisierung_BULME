@@ -16,12 +16,11 @@ namespace vis1
 
         public string ReadCString() //String einlesen bis 0x0
         {
-            int len = 0;    
-            byte ch;    //Hilfsvariable zum einlesen
+            var len = 0;
 
-            while (true)
+	        while (true)
             {
-                ch = ReadByte();   //Lesen von 1 Byte
+                var ch = ReadByte();    //Hilfsvariable zum einlesen
 
                 if (ch == 0)    //Lesen bis Zeichen 0x0 eingelesen wird
                 {
@@ -44,7 +43,7 @@ namespace vis1
                     len++;
                 }
             }
-            string ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
+            var ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
             return ret;   //String zurückliefern
         }
 

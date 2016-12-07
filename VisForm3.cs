@@ -51,19 +51,19 @@ namespace vis1
 
         protected override void OnLoad(EventArgs e)
         {
-            ConfigCommunication();
+            //while(!ConfigCommunication());
 
-            _cmp = new CommandParser(_ph.binWr);
+            
 
             m_DispTimer.Interval = Disp;
-            m_DispTimer.Enabled = true;
+            //m_DispTimer.Enabled = true;
             _decodeTimer.Interval = Thread;
-            _decodeTimer.Enabled = true;
+            //_decodeTimer.Enabled = true;
 
             CreateOnlineCurveWin();
             CreateVertWin();
 
-            _pnf = new PianoForm(_ph.binWr);
+            //_pnf = new PianoForm(_ph.binWr);
             //_AddTextInvoker = this.AddText2ListBox;
             // _decoderThr = new Thread(this.DecoderThreadLoop); _decoderThr.Start();
             base.OnLoad(e);
@@ -78,8 +78,7 @@ namespace vis1
             // Thread.Sleep(100);
             // _decoderThr.Join();
 
-            _ph.Close();
-            m_SerPort.Close();
+			CloseCommunication();
             base.OnFormClosing(e);
         }
 
@@ -331,5 +330,40 @@ namespace vis1
         {
             //TODO: Reset Method
         }
-    }
+
+		private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (connectToolStripMenuItem.Checked)
+			{
+				if (ConfigCommunication())
+				{
+					connectToolStripMenuItem.Checked = true;
+					for (var i = 0; i < 10; i++)
+					{
+						_ph.ivs[i] = _ivsBuffer[i];
+					}
+					m_DispTimer.Enabled = true;
+					_decodeTimer.Enabled = true;
+					_cmp = new CommandParser(_ph.binWr);
+					_pnf = new PianoForm(_ph.binWr);
+				}
+				else
+				{
+					connectToolStripMenuItem.Checked = false;
+					m_DispTimer.Enabled = false;
+					_decodeTimer.Enabled = false;
+					_cmp = null;
+					_pnf = null;
+				}
+			}
+			else
+			{
+				_cmp = null;
+				_pnf = null;
+				_decodeTimer.Enabled = false;
+				m_DispTimer.Enabled = false;			
+				CloseCommunication();			
+			}
+		}
+	}
 }

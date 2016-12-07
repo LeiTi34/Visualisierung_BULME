@@ -61,7 +61,7 @@ namespace vis1
             m_BinRd = new BinaryReaderEx(m_P.BaseStream); //Liest von aPort
             binWr = new BinaryWriterEx(m_P.BaseStream);   //Schreibt auf aPort
             _printCB = aPrintObj;
-            for (int i = 0; i < ivs.Length; i++)
+            for (var i = 0; i < ivs.Length; i++)
                 ivs[i] = new DummyValueSink();
             stw.Reset(); stw.Start(); //Stopuhr neustarten
         }
@@ -291,26 +291,34 @@ namespace vis1
         {
             NVals = 9; NBytes = 3 * NVals;
         }
+		//Counter for read errors
+	    public int readerrorcnt = 0;
 
+		//Scaling factor
         private const float C1 = (float)1.0 / short.MaxValue;
 
-        private readonly Queue<float> logfloat = new Queue<float>();
-        private readonly Queue<int> logchannel = new Queue<int>();
+		//Queues for exporting to File
+        private readonly Queue<float> _logfloat = new Queue<float>();
+        private readonly Queue<int> _logchannel = new Queue<int>();
 
+		//Maximum size for queues TODO: sollte x-Axe entsprechen
         private const int QueuMaxSize = 20 * 100;
 
-        public void AddData(int ID, float data)
+		//Add adae to queues and chart
+	    private void AddData(int ID, float data)
         {
+			//chart
             vf[ID] = data;
             ivs[ID].AddValue(vf[ID]);
 
-            logfloat.Enqueue(data); //Daten in Query speichern
-            logchannel.Enqueue(ID); //Kanalnummer in Query Speichern
+            _logfloat.Enqueue(data); //Daten in Query speichern
+            _logchannel.Enqueue(ID); //Kanalnummer in Query Speichern
 
-            if (logchannel.Count > QueuMaxSize)
+			//Delete one item if queue maximum size is reched
+            if (_logchannel.Count > QueuMaxSize)
             {
-                logfloat.Dequeue();
-                logchannel.Dequeue();
+                _logfloat.Dequeue();
+                _logchannel.Dequeue();
             }
         }
 
@@ -332,37 +340,63 @@ namespace vis1
 
             while (m_P.BytesToRead >= 3)
             {
-                int i;
-                do
-                {
-                    i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+                var id = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
 
-                } while (i < 0 || i > 29);
+	            int track, type;
 
-                if (i == 9) //ID 9: string SV
-                {
-                    _printCB.DoPrint(m_BinRd.ReadCString());
-                }
-                else if (i >= 0 && i <= 8) //ID 0 bis 8: 3.13 Format
-                {
-                    AddData(i, m_BinRd.Read3P13());
-                }
-                else if (i >= 10 && i <= 19) //ID 10 bis 19: short (2 Byte)
-                {
-                    if (_scal == Scaling.Q15)
-                        AddData(i - 10, C1 * m_BinRd.ReadInt16());
-                    else
-                        AddData(i - 10, m_BinRd.ReadInt16());
-                }
-                else if (i >= 20 && i <= 29) //ID 20 bis 29: float 4 Byte
-                {
-                    AddData(i - 20, m_BinRd.ReadSingle());
-                }
-            }
-            return true;
-        }
+	            if (id == 9)	//Check for String
+	            {
+		            type = -1;
+		            track = 0;
+	            }
+	            else	//Calculate other IDs
+	            {
+		            type = id/10;
+		            track = id - 10*type;
+	            }
 
-        public override void SaveToCsv()
+	            if (track >= 0 && id <= track)
+	            {
+					switch (type)
+					{
+						case -1:	//string, bis 0
+							_printCB.DoPrint( m_BinRd.ReadCString() );
+							break;
+
+						case 0:     //3P13,  4 Byte
+							AddData(track, m_BinRd.Read3P13());
+							break;
+
+						case 1:     //short, 2 Byte
+							switch (_scal)
+							{
+								case Scaling.Q15:
+									AddData(track, C1*m_BinRd.ReadInt16());
+									break;
+								case Scaling.None:
+									AddData(track, m_BinRd.ReadInt16());
+									break;
+							}
+							break;
+
+						case 2:     //float, 4 Byte
+							AddData(id, m_BinRd.ReadSingle());
+							break;
+
+						default:
+							readerrorcnt++;
+							break;
+					}
+				}
+	            else
+	            {
+		            readerrorcnt++;
+	            }
+			}
+			return true;
+		}
+
+		public override void SaveToCsv()
         {
             //StreamWriter w writes on filePath
             var saveFileDialog1 = new SaveFileDialog();
@@ -393,13 +427,13 @@ namespace vis1
 
                         //While data in Query
                         var n = 1;
-                        while (logchannel.Count > 0 && logfloat.Count > 0)
+                        while (_logchannel.Count > 0 && _logfloat.Count > 0)
                         {
-                            var channel = logchannel.Dequeue(); //Get Channel-Number
+                            var channel = _logchannel.Dequeue(); //Get Channel-Number
 
                             if (set[channel])   //Write Line if value is already in Buffer
                             {
-                                line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]}";
+                                line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]}";
                                 w.WriteLine(line);
                                 w.Flush();
                                 n++;
@@ -410,7 +444,7 @@ namespace vis1
                                     value[i] = "";
                                 }
                             }
-                                value[channel] = logfloat.Dequeue().ToString().Replace(".", ",");  //Auf Europäisches Format umwandeln . -> ,
+                                value[channel] = _logfloat.Dequeue().ToString().Replace(".", ",");  //Auf Europäisches Format umwandeln . -> ,
                                 set[channel] = true;
                         }
                         //Restliche Werte auch Schreiben
@@ -422,99 +456,8 @@ namespace vis1
                 }
             }
             //Query Leeren
-            logfloat.Clear();
-            logchannel.Clear();
+            _logfloat.Clear();
+            _logchannel.Clear();
         }
-    }
-
-    /*
-     * Liest folgende Werte bei IDs aus
-     *  ID      Wert
-     *  0...3   1.11 Format
-     *  9       String
-     */
-    /*class SvIdProtocolHandler2 : SvIdProtocolHandler
-    {
-        public SvIdProtocolHandler2(SerialPort aPort, IPrintCB aPrintObj)
-          : base(aPort, aPrintObj)
-        {
-        }
-
-        public override bool ParseAllPackets()
-        {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
-            {
-                return false;
-            }
-
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
-            {
-                i = m_BinRd.ReadByte() - 1; //Einlesen von ID
-
-                if (i == 9) //ID 9: string SV
-                {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
-                                                                //continue;
-                }
-                else if (i >= 0 && i <= 3)
-                {
-                    vf[i] = m_BinRd.Read1P11();
-                }
-
-                // if( i>=1 && i<=3 ) vf[i] = m_BinRd.ReadInt16();
-
-                ivs[i].AddValue(vf[i]);
-            }
-            return true;
-        }
-    }*/
-
-    /*
-     * Liest folgende Werte bei IDs aus
-     *  ID      Wert
-     *  0...1   Float
-     *  2...3   (NVals?)
-     *  9       String
-     */
-    /*class HPerfProtocolHandler : SvIdProtocolHandler
-    {
-        public HPerfProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
-          : base(aPort, aPrintObj)
-        {
-            NVals = 4; NBytes = 3 * NVals;
-        }
-
-        public override bool ParseAllPackets()
-        {
-            if (m_P.BytesToRead < 3)    //Mindestens 2 Byte (ID + Daten)
-            {
-                return false;
-            }
-
-            int i;  //ID
-
-            while (m_P.BytesToRead >= 3)
-            {
-                i = m_P.ReadByte() - 1; //ID einlesen
-
-                if (i == 9) //ID 9: string SV
-                {
-                    _printCB.DoPrint(m_BinRd.ReadCString());    //String einlesen und ausgeben
-                }
-                else if (i >= 0 && i <= 1) //ID 0 bis 1: float-SV
-                {
-                    vf[i] = m_BinRd.ReadSingle();   //4 Byte float einlesen
-                                                    // ivs[i].AddValue(vf[i]);
-                }
-                else if (i >= 2 && i <= 3)  //ID 2 bis 3: ??
-                {
-                    int NVals = (byte)m_P.ReadByte();
-                    brb[i].AddBytes(m_P.BaseStream, 2 * NVals);
-                }
-            }
-            return true;
-        }
-    }*/
+	}
 }
