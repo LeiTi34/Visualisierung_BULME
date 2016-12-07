@@ -1,7 +1,9 @@
 using System;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
+using System.Windows.Forms;
 using ZedHL;
 
 namespace vis1
@@ -20,32 +22,44 @@ namespace vis1
         //Konfigurationsdialog zur Auswahl eines COM-Ports
         void ConfigCommunication()
         {
-            // Get a list of serial port names.
-            var ports = SerialPort.GetPortNames();
-
-            // Port names zeilenweise in string scheiben
-            System.Text.StringBuilder sbportlist = new System.Text.StringBuilder();
-            foreach (var port in ports)
+            var comport = "";
+            do
             {
-                sbportlist.AppendLine(port.Length >= 3 ? port.Remove(4, port.Length - 4) : port);
-            }
-            string portlist = sbportlist.ToString();
+                var comDialog = new ChooseCom();
 
-            //TODO: ListBox statt InputBox
-            //Dialog zur abfrage des Ports
-            var comport =
-                Microsoft.VisualBasic.Interaction.InputBox("Geben Sie eine COM-Schnittstelle an:\n\n" + portlist,
-                "COM-Schnittstelle", ports[0].Length >= 3 ? ports[0].Remove(4, ports[0].Length - 4) : ports[0]);
+                if (comDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    comport = comDialog.Port;
+                    comDialog.Dispose();
+                }
+            } while (comport == "");
 
-            //Konfiguration der Seriellenn Schnitstelle & Lesebuffer definieren
             m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) { ReadBufferSize = 20 * 1024 };
 
-            m_SerPort.Open(); //Serielle verbindung öffnen
+            try
+            {
+                m_SerPort.Open(); //Serielle verbindung öffnen
+            }
+            catch (IOException)
+            {
+                MessageBox.Show(@"IO Exception: " + comport + @" konnte nicht gefunden werden!");
+                Environment.Exit(1);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(@"Exception: " + comport + @" konnte nicht gefunden werden!");
+                Environment.Exit(1);
+            }
+            finally
+            {
+                //statusStrip.Items.Add("COM-Port opened successful");
+                _ph = new BufProtocolHandler(m_SerPort, this);
+            }
 
-             //_ph = new SvIdProtocolHandler(m_SerPort, this);
-             //_ph = new SvIdProtocolHandler3(m_SerPort, this);
-           // _ph = new HPerfProtocolHandler(m_SerPort, this);
-           _ph = new BufProtocolHandler(m_SerPort, this);
+            //_ph = new SvIdProtocolHandler(m_SerPort, this);
+            //_ph = new SvIdProtocolHandler3(m_SerPort, this);
+            // _ph = new HPerfProtocolHandler(m_SerPort, this);
+
         }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default
@@ -56,20 +70,23 @@ namespace vis1
             _olc = _ow.olc;
             _olc.buffSize = (int)(20 * FSample);
 
-            //Skalierungen von app.conf file einlesen und setzen
-            _olc.SetY1Scale(false,  //Y1-Axis
+            // Skalierungen von app.conf file einlesen und setzen
+            // Y1-Axis
+            _olc.SetY1Scale(false,
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1min")),
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y1max")));
-            _olc.SetY2Scale(false,  //Y2-Axis
+            
+            // Y2-Axis
+            _olc.SetY2Scale(false,
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2min")),
                 Convert.ToInt32(ConfigurationManager.AppSettings.Get("Y2max")));
 
-            //X-Axis
-            Xmin = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin"));
-            Xmax = Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"));
-            _olc.SetXScale(false, Xmin, Xmax); 
+            // X-Axis
+            _olc.SetXScale(false,
+                Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmin")),
+            Convert.ToInt32(ConfigurationManager.AppSettings.Get("Xmax"))); 
 
-            //olc.SetCurve(<ID>, <Name>, <Color>, <Y2>, )
+            // olc.SetCurve(<ID>, <Name>, <Color>, <Y2>, )
             for (var track = 1; track <= 10; track++)    //Track 1...5
             {
                 if (Convert.ToBoolean(ConfigurationManager.AppSettings.Get("S" + track + "Enable")))    //Enable von app.conf file Lesen

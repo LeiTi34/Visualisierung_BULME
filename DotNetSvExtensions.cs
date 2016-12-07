@@ -28,8 +28,21 @@ namespace vis1
                     break;
                 }
 
-                m_CString[len] = ch; //Zeichen in Byte-Array schreiben
-                len++;
+                try
+                {
+                    m_CString[len] = ch; //Zeichen in Byte-Array schreiben
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    for (var i = 0; i < m_CString.Length; i++)
+                        m_CString[i] = 0;
+                    len = 0;
+                    break;
+                }
+                finally
+                {
+                    len++;
+                }
             }
             string ret = Encoding.ASCII.GetString(m_CString, 0, len); //Byte Array in String umwandeln
             return ret;   //String zurückliefern

@@ -88,6 +88,10 @@ namespace vis1
             binWr.WriteSv16(aId, aVal);   //Sende ID + 2Byte Daten
         }
 
+        public virtual void AddData()
+        {
+        }
+
         // parses all ProtocolPacket's with all Variables
         public virtual bool ParseAllPackets()
         {
@@ -291,112 +295,84 @@ namespace vis1
         private const float C1 = (float)1.0 / short.MaxValue;
 
         private readonly Queue<float> logfloat = new Queue<float>();
-        private readonly Queue<short> logshort = new Queue<short>();
         private readonly Queue<int> logchannel = new Queue<int>();
 
         private const int QueuMaxSize = 20 * 100;
 
-        public override bool ParseAllPackets()
+        public void AddData(int ID, float data)
         {
-            bool ret = true;
-            if (m_P.BytesToRead < 3) //Mindestens 3 Byte (ID + 2 Byte Daten)
+            vf[ID] = data;
+            ivs[ID].AddValue(vf[ID]);
+
+            logfloat.Enqueue(data); //Daten in Query speichern
+            logchannel.Enqueue(ID); //Kanalnummer in Query Speichern
+
+            if (logchannel.Count > QueuMaxSize)
             {
+                logfloat.Dequeue();
+                logchannel.Dequeue();
+            }
+        }
+
+        public override bool ParseAllPackets()
+        {   
+            try
+            {
+                if (m_P.BytesToRead < 3) //Mindestens 3 Byte (ID + 2 Byte Daten)
+                {
+                    return false;
+                }
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("Disconnected!");
+
                 return false;
             }
 
             while (m_P.BytesToRead >= 3)
             {
-                int i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+                int i;
+                do
+                {
+                    i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+
+                } while (i < 0 || i > 29);
 
                 if (i == 9) //ID 9: string SV
                 {
                     _printCB.DoPrint(m_BinRd.ReadCString());
-                    //continue;
                 }
                 else if (i >= 0 && i <= 8) //ID 0 bis 8: 3.13 Format
                 {
-                    vf[i] = m_BinRd.Read3P13();
-                    ivs[i].AddValue(vf[i]);
-                    //continue;
+                    AddData(i, m_BinRd.Read3P13());
                 }
                 else if (i >= 10 && i <= 19) //ID 10 bis 19: short (2 Byte)
                 {
-                    var buf = m_BinRd.ReadInt16();
-                    var buff = C1 * buf;
-                    var channel = i - 10;
-                    SingleShotShow = false;
-
                     if (_scal == Scaling.Q15)
-                    {
-                        vf[channel] = buff;
-                        ivs[channel].AddValue(vf[channel]);
-
-                        logfloat.Enqueue(buff); //Daten in Query speichern
-                        logchannel.Enqueue(i + 10); //Kanalnummer in Query Speichern
-
-                        if (logchannel.Count > QueuMaxSize)
-                        {
-                            logfloat.Dequeue();
-                            logchannel.Dequeue();
-                        }
-                    }
+                        AddData(i - 10, C1 * m_BinRd.ReadInt16());
                     else
-                    {
-                        vf[channel] = buf;
-                        ivs[channel].AddValue(vf[channel]);
-
-                        logshort.Enqueue(buf); //Daten in Query speichern
-                        logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                        if (logchannel.Count > QueuMaxSize)
-                        {
-                            logshort.Dequeue();
-                            logchannel.Dequeue();
-                        }
-                    }
+                        AddData(i - 10, m_BinRd.ReadInt16());
                 }
-                else if (i >= 20 && i <= 29) //ID 20 bis 29: float
+                else if (i >= 20 && i <= 29) //ID 20 bis 29: float 4 Byte
                 {
-                    var buf = m_BinRd.ReadSingle();
-                    var channel = i - 20;
-                    vf[channel] = buf;
-                    ivs[channel].AddValue(vf[channel]);
-
-                    logfloat.Enqueue(buf); //Daten in Query speichern
-                    logchannel.Enqueue(i); //Kanalnummer in Query Speichern
-
-                    if (logchannel.Count > QueuMaxSize)
-                    {
-                        logfloat.Dequeue();
-                        logchannel.Dequeue();
-                    }
-                    //}
+                    AddData(i - 20, m_BinRd.ReadSingle());
                 }
-                // m_BinRd.Dispose();
             }
             return true;
         }
 
         public override void SaveToCsv()
         {
-            /*** TESTDATA ***
-            float[] val = { (float)1.33, (float)1.44, (float)0, (float)2.33 };
-            short[] chan = { 1, 2, 1, 2 };
-
-            for (var i = 0; i <= 3; i++)
-            {
-                logfloat.Enqueue(val[i]); //Daten in Query speichern
-                logchannel.Enqueue(chan[i]);
-            }
-            /*** TESTDATA END ***/
-
             //StreamWriter w writes on filePath
             var saveFileDialog1 = new SaveFileDialog();
 
             //FILENAME: Logs_<DATE>_<TIME>.csv
             var localDate = DateTime.Now;
             var culture = new CultureInfo("de-DE");
-            saveFileDialog1.FileName = "Log_" + localDate.ToString(culture).Replace(".", "_").Replace(" ", "_").Replace(":", "_") + ".csv";
+            var date = localDate.ToString(culture).Replace(".", "_").Replace(" ", "_").Replace(":", "_");
+            saveFileDialog1.FileName = "Log_" + date + ".csv";
+
             saveFileDialog1.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
             saveFileDialog1.FilterIndex = 1;
             saveFileDialog1.RestoreDirectory = true;
@@ -417,23 +393,9 @@ namespace vis1
 
                         //While data in Query
                         var n = 1;
-                        while (logchannel.Count + logfloat.Count + logshort.Count > 0)
+                        while (logchannel.Count > 0 && logfloat.Count > 0)
                         {
-                            var fullchannel = logchannel.Dequeue(); //Get Channel-Number
-                            int channel, type;
-
-                            if (fullchannel >= 10 && fullchannel <= 19)
-                            {
-                                channel = fullchannel - 10;
-                            }
-                            else if (fullchannel >= 20 && fullchannel <= 29)
-                            {
-                                channel = fullchannel - 20;
-                            }
-                            else
-                            {
-                                channel = fullchannel;
-                            }
+                            var channel = logchannel.Dequeue(); //Get Channel-Number
 
                             if (set[channel])   //Write Line if value is already in Buffer
                             {
@@ -448,17 +410,8 @@ namespace vis1
                                     value[i] = "";
                                 }
                             }
-
-                            if (fullchannel >= 10 && fullchannel <= 19)
-                            {
-                                value[channel] = logshort.Dequeue().ToString();    //Read from Query
-                                set[channel] = true;
-                            }
-                            else if (fullchannel >= 20 && fullchannel <= 29) //ID 20 bis 29: float
-                            {
                                 value[channel] = logfloat.Dequeue().ToString().Replace(".", ",");  //Auf Europäisches Format umwandeln . -> ,
                                 set[channel] = true;
-                            }
                         }
                         //Restliche Werte auch Schreiben
                         line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]}";
@@ -468,7 +421,6 @@ namespace vis1
                     csvStream.Close();
                 }
             }
-
             //Query Leeren
             logfloat.Clear();
             logchannel.Clear();
