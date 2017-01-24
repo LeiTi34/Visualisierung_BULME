@@ -14,7 +14,7 @@ namespace vis1
         {
             if (!(SerialPort.GetPortNames().Length > 0))   //Starte Programm nur wenn COM-Schnitstellen verfügbar sind
             {
-                MessageBox.Show(@"No Serial Ports available", @"My Application", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                MessageBox.Show("No Serial Ports available", "SVis", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 return 1;
             }
 

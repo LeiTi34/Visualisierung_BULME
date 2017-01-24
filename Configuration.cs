@@ -19,49 +19,62 @@ namespace vis1
 
 	    private IValueSink []_ivsBuffer = new IValueSink[10];
 
+        private bool _communicationIsOpen = false;
+
         //Konfigurationsdialog zur Auswahl eines COM-Ports
         bool ConfigCommunication()
         {
-            var comport = "";
-            do
+            if (!_communicationIsOpen)
             {
-                var comDialog = new ChooseCom();
-
-                if (comDialog.ShowDialog(this) == DialogResult.OK)
+                var comport = "";
+                do
                 {
-                    comport = comDialog.Port;
-                    comDialog.Dispose();
+                    var comDialog = new ChooseCom();
+
+                    if (comDialog.ShowDialog(this) == DialogResult.OK)
+                    {
+                        comport = comDialog.Port;
+                        comDialog.Dispose();
+                    }
+                } while (comport == "");
+
+                m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) {ReadBufferSize = 20 * 1024};
+
+                try
+                {
+                    m_SerPort.Open(); //Serielle verbindung öffnen
+
+                    _ph = new BufProtocolHandler(m_SerPort, this);
+                    _communicationIsOpen = true;
+
+                    return true;
                 }
-            } while (comport == "");
-
-            m_SerPort = new SerialPort(comport, 115200, Parity.None, 8, StopBits.One) { ReadBufferSize = 20 * 1024 };
-
-            try
-            {
-                m_SerPort.Open(); //Serielle verbindung öffnen
+                catch (IOException)
+                {
+                    MessageBox.Show(@"IO Exception: " + comport + @" konnte nicht gefunden werden!");
+                    return false;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(@"Exception: " + comport + @" konnte nicht gefunden werden!");
+                    return false;
+                }
             }
-            catch (IOException)
+            else
             {
-                MessageBox.Show(@"IO Exception: " + comport + @" konnte nicht gefunden werden!");
-	            return false;
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(@"Exception: " + comport + @" konnte nicht gefunden werden!");
                 return false;
             }
-            finally
-            {
-                //statusStrip.Items.Add("COM-Port opened successful");
-                _ph = new BufProtocolHandler(m_SerPort, this);
-            }
-			return true;
-		}
+        }
 
 	    void CloseCommunication()
 	    {
-		    m_SerPort.Close();
-			_ph.Close();
+            if (_communicationIsOpen)
+            {
+                m_SerPort.Close();
+                _ph.Close();
+
+                _communicationIsOpen = false;
+            }
 	    }
 
         ///ph._scal = Scaling.None; // MaxI16 = +/-1.0     //ph._scal does not exist? Scaling.None = default

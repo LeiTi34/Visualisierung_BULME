@@ -97,10 +97,18 @@ namespace vis1
             }
             else
             {
-                _ph.SwitchAcq(false);
-                _ph.Flush();
+                try
+                {
+                    _ph.SwitchAcq(false);
+                    _ph.Flush();
+                }
+                catch(NullReferenceException)
+                {
+                    Console.Out.WriteLine("NullReferenceException caught!");
+                }
 
                 System.Threading.Thread.Sleep(200);
+
                 // m_SerPort.DiscardInBuffer();
                 // m_DispTimer.Enabled = false;
                 // stw.Stop();

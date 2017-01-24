@@ -39,6 +39,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BinarySerializer, Version=6.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\BinarySerializer.6.0.1\lib\portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\BinarySerializer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -48,13 +52,17 @@
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="XBee, Version=3.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\XBee.3.2.0.0\lib\net45\XBee.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="ZedGraphRel, Version=5.1.5.31335, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ZedHL\bin\Release\ZedGraphRel.dll</HintPath>
+      <HintPath>.\ZedGraphRel.dll</HintPath>
     </Reference>
     <Reference Include="ZedHLRel, Version=1.0.3959.23218, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\ZedHL\bin\Release\ZedHLRel.dll</HintPath>
+      <HintPath>.\ZedHLRel.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

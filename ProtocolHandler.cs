@@ -292,7 +292,7 @@ namespace vis1
             NVals = 9; NBytes = 3 * NVals;
         }
 		//Counter for read errors
-	    public int readerrorcnt = 0;
+	    public int Readerrorcnt = 0;
 
 		//Scaling factor
         private const float C1 = (float)1.0 / short.MaxValue;
@@ -384,13 +384,13 @@ namespace vis1
 							break;
 
 						default:
-							readerrorcnt++;
+							Readerrorcnt++;
 							break;
 					}
 				}
 	            else
 	            {
-		            readerrorcnt++;
+		            Readerrorcnt++;
 	            }
 			}
 			return true;
