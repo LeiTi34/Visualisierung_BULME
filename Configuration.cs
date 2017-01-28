@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Ports;
 using System.Windows.Forms;
+using vis1.Properties;
 using ZedHL;
 
 namespace vis1
@@ -51,12 +52,14 @@ namespace vis1
                 }
                 catch (IOException)
                 {
-                    MessageBox.Show(@"IO Exception: " + comport + @" konnte nicht gefunden werden!");
+                    MessageBox.Show(@"IO Exception: " + comport + Resources.PortNotFound);
+                    //TODO: Reset Hackerl
+                    //_olc.SetAcqPoints(acqPointMenuItem.Checked);
                     return false;
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show(@"Exception: " + comport + @" konnte nicht gefunden werden!");
+                    MessageBox.Show(@"Exception: " + comport + Resources.PortNotFound);
                     return false;
                 }
             }

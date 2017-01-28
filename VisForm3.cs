@@ -84,34 +84,37 @@ namespace vis1
 
         void OnAcqOnOffMenue(object sender, EventArgs e) //Toggle Acq. On/Off
         {
-            if (acqOnOffMenuItem.Checked)
+            if (_communicationIsOpen)
             {
-                m_SerPort.DiscardInBuffer();
-                System.Threading.Thread.Sleep(200);
-
-                _ph.SwitchAcq(true);
-                _ph.Flush();
-
-                // m_DispTimer.Enabled = true;
-                // stw.Reset(); stw.Start();
-            }
-            else
-            {
-                try
+                if (acqOnOffMenuItem.Checked)
                 {
-                    _ph.SwitchAcq(false);
+                    m_SerPort.DiscardInBuffer();
+                    System.Threading.Thread.Sleep(200);
+
+                    _ph.SwitchAcq(true);
                     _ph.Flush();
+
+                    // m_DispTimer.Enabled = true;
+                    // stw.Reset(); stw.Start();
                 }
-                catch(NullReferenceException)
+                else
                 {
-                    Console.Out.WriteLine("NullReferenceException caught!");
+                    try
+                    {
+                        _ph.SwitchAcq(false);
+                        _ph.Flush();
+                    }
+                    catch (NullReferenceException)
+                    {
+                        Console.Out.WriteLine("NullReferenceException caught!");
+                    }
+
+                    System.Threading.Thread.Sleep(200);
+
+                    // m_SerPort.DiscardInBuffer();
+                    // m_DispTimer.Enabled = false;
+                    // stw.Stop();
                 }
-
-                System.Threading.Thread.Sleep(200);
-
-                // m_SerPort.DiscardInBuffer();
-                // m_DispTimer.Enabled = false;
-                // stw.Stop();
             }
         }
 
