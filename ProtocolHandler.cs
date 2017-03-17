@@ -6,6 +6,7 @@ using System.Globalization;
 using ZedHL;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.VisualBasic.Logging;
 
 namespace vis1
 {
@@ -338,7 +339,7 @@ namespace vis1
                 return false;
             }
 
-            while (m_P.BytesToRead >= 3)
+            /*while (m_P.BytesToRead >= 3)
             {
                 var id = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
 
@@ -352,8 +353,9 @@ namespace vis1
 	            else	//Calculate other IDs
 	            {
 		            type = id/10;
-		            track = id - 10*type;
-	            }
+                    track = id - 10*type;
+                    Debug.WriteLine("ID: "+ id + "\tType: " + type + "\tTrack: " + track);
+                }
 
 	            if (track >= 0 && id <= track)
 	            {
@@ -392,8 +394,38 @@ namespace vis1
 	            {
 		            Readerrorcnt++;
 	            }
-			}
-			return true;
+			}*/
+
+            while (m_P.BytesToRead >= 3)
+            {
+                int i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
+
+                //CHANGE: continue mit else if ersetzt!
+                if (i == 9) //ID 9: string SV
+                {
+                    _printCB.DoPrint(m_BinRd.ReadCString());
+                    //continue;
+                }
+                else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format
+                {
+                    AddData(i, m_BinRd.Read3P13());
+                    //continue;
+                }
+                else if (i >= 10 && i <= 19)    //ID 10 bis 19: short (2 Byte)
+                {
+                    if (_scal == Scaling.Q15) //_scal == 1
+                        AddData(i - 10, C1 * m_BinRd.ReadInt16());
+                    else
+                        AddData(i - 10, m_BinRd.ReadInt16());
+                    //continue;
+                }
+                else if (i >= 20 && i <= 29)    //ID 20 bis 29: float
+                {
+                    AddData(i - 20, m_BinRd.ReadSingle());
+                    //continue;
+                }
+            }
+            return true;
 		}
 
 		public override void SaveToCsv()
