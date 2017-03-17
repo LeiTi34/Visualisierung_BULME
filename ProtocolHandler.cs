@@ -418,7 +418,7 @@ namespace vis1
                 {
                     using (var w = new StreamWriter(csvStream))
                     {
-                        var line = "n;S1;S2;S3;S4;S5;S6;S7;S8;S9;S10";    //Spaltenbeschriftung
+                        var line = "n;S1;S2;S3;S4;S5;S6;S7;S8;S9;S10;";    //Spaltenbeschriftung
                         w.WriteLine(line);
                         w.Flush();
 
@@ -433,7 +433,7 @@ namespace vis1
 
                             if (set[channel])   //Write Line if value is already in Buffer
                             {
-                                line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]}";
+                                line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]};";
                                 w.WriteLine(line);
                                 w.Flush();
                                 n++;
@@ -448,7 +448,7 @@ namespace vis1
                                 set[channel] = true;
                         }
                         //Restliche Werte auch Schreiben
-                        line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]}";
+                        line = $"{n};{value[0]};{value[1]};{value[2]};{value[3]};{value[4]};{value[5]};{value[6]};{value[7]};{value[8]};{value[9]};";
                         w.WriteLine(line);
                         w.Flush();
                     }
