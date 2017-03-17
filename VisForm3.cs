@@ -17,6 +17,7 @@ namespace vis1
         // Stopwatch stw = new Stopwatch();
         CommandParser _cmp;
         PianoForm _pnf;
+        About about = new About();
         //string _bitTxt;   //WARNING: is assigned but its value is never used
         #endregion
 
@@ -376,5 +377,14 @@ namespace vis1
 				CloseCommunication();			
 			}
 		}
-	}
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (aboutToolStripMenuItem.Checked)
+                about.Show(); //Show Curve window
+
+            else
+                about.Hide(); //Hide Curve window
+        }
+    }
 }
