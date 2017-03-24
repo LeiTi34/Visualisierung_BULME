@@ -1,12 +1,12 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
+using ZedHL;
+using System.Windows.Forms;
 using System.IO.Ports;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using ZedHL;
-using System.IO;
-using System.Windows.Forms;
-using Microsoft.VisualBasic.Logging;
+
 
 namespace vis1
 {
@@ -15,12 +15,6 @@ namespace vis1
         None = 0,
         Q15 = 1,
     }
-
-    /*class Scaling2
-    {
-        public const float q15 = (float)1.0 / (float)Int16.MaxValue;
-        public const float q11 = (float)1.0 / (float)2048;
-    }*/
 
     public interface IPrintCB
     {
@@ -48,13 +42,6 @@ namespace vis1
         public int NVals, NBytes;
         public double valsPerSec;
         #endregion
-
-        public bool SingleShotEnabled = false;
-        public float SingleShotTrigger;
-        public int SingleShotChannel;
-        public bool SingleShotRunning;
-        public bool SingleShotShow;
-        protected int SingleShotCount = 0;
 
         public ProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
         {
@@ -117,7 +104,7 @@ namespace vis1
     /*
      * Liest zwei Short-Werte ein. Spur 1 und Spur 2
      */
-    /*class NxtProtocolHandler : ProtocolHandler
+    class NxtProtocolHandler : ProtocolHandler
     {
         public NxtProtocolHandler(SerialPort aPort, IPrintCB aPrintObj)
           : base(aPort, aPrintObj)
@@ -164,7 +151,7 @@ namespace vis1
             }
             return true;
         }
-    }*/
+    }
 
     /*
      * Liest folgende Werte bei IDs aus
@@ -257,13 +244,11 @@ namespace vis1
                 if (i == 9) //ID 9: string SV
                 {
                     _printCB.DoPrint(m_BinRd.ReadCString());
-                    //continue;
                 }
                 else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format
                 {
                     vf[i] = m_BinRd.Read3P13();
                     ivs[i].AddValue(vf[i]);
-                    //continue;
                 }
                 else if (i >= 10 && i <= 19)    //ID 10 bis 19: short (2 Byte)
                 {
@@ -272,13 +257,11 @@ namespace vis1
                     else
                         vf[i - 10] = m_BinRd.ReadInt16();   //Liest 2 Byte ein (von i wird 10 abgezogen um die ursprüngliche ID wiederherzustellen)
                     ivs[i - 10].AddValue(vf[i - 10]);
-                    //continue;
                 }
                 else if (i >= 20 && i <= 29)    //ID 20 bis 29: float
                 {
                     vf[i - 20] = m_BinRd.ReadSingle();
                     ivs[i - 20].AddValue(vf[i - 20]);
-                    //continue;
                 }
             }
             return true;
@@ -339,63 +322,6 @@ namespace vis1
                 return false;
             }
 
-            /*while (m_P.BytesToRead >= 3)
-            {
-                var id = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
-
-	            int track, type;
-
-	            if (id == 9)	//Check for String
-	            {
-		            type = -1;
-		            track = 0;
-	            }
-	            else	//Calculate other IDs
-	            {
-		            type = id/10;
-                    track = id - 10*type;
-                    Debug.WriteLine("ID: "+ id + "\tType: " + type + "\tTrack: " + track);
-                }
-
-	            if (track >= 0 && id <= track)
-	            {
-					switch (type)
-					{
-						case -1:	//string, bis 0
-							_printCB.DoPrint( m_BinRd.ReadCString() );
-							break;
-
-						case 0:     //3P13,  4 Byte
-							AddData(track, m_BinRd.Read3P13());
-							break;
-
-						case 1:     //short, 2 Byte
-							switch (_scal)
-							{
-								case Scaling.Q15:
-									AddData(track, C1*m_BinRd.ReadInt16());
-									break;
-								case Scaling.None:
-									AddData(track, m_BinRd.ReadInt16());
-									break;
-							}
-							break;
-
-						case 2:     //float, 4 Byte
-							AddData(id, m_BinRd.ReadSingle());
-							break;
-
-						default:
-							Readerrorcnt++;
-							break;
-					}
-				}
-	            else
-	            {
-		            Readerrorcnt++;
-	            }
-			}*/
-
             while (m_P.BytesToRead >= 3)
             {
                 int i = m_BinRd.ReadByte() - 1; //Liest erstes Byte (aID) -> wird vewendet um Datentyp zuzuordnen
@@ -406,7 +332,7 @@ namespace vis1
                     _printCB.DoPrint(m_BinRd.ReadCString());
                     //continue;
                 }
-                else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format
+                else if (i >= 0 && i <= 8)  //ID 0 bis 8: 3.13 Format (2 Byte)
                 {
                     AddData(i, m_BinRd.Read3P13());
                     //continue;
@@ -430,6 +356,7 @@ namespace vis1
 
 		public override void SaveToCsv()
         {
+            //TODO: Nur ausführen wenn Queue not empty
             //StreamWriter w writes on filePath
             var saveFileDialog1 = new SaveFileDialog();
 

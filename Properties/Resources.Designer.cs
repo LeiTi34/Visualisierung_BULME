@@ -27,8 +27,7 @@ namespace vis1.Properties {
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
-        internal static string PortNotFound = " konnte nicht gefunden werden!";
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resources() {
         }
@@ -58,6 +57,60 @@ namespace vis1.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Autor ähnelt.
+        /// </summary>
+        internal static string Autor {
+            get {
+                return ResourceManager.GetString("Autor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Alex Leidwein ähnelt.
+        /// </summary>
+        internal static string Autorname {
+            get {
+                return ResourceManager.GetString("Autorname", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die SvVis3 ähnelt.
+        /// </summary>
+        internal static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die  konnte nicht gefunden werden! ähnelt.
+        /// </summary>
+        internal static string PortNotFound {
+            get {
+                return ResourceManager.GetString("PortNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Version ähnelt.
+        /// </summary>
+        internal static string Version {
+            get {
+                return ResourceManager.GetString("Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die V2.4 ähnelt.
+        /// </summary>
+        internal static string Versionsnummer {
+            get {
+                return ResourceManager.GetString("Versionsnummer", resourceCulture);
             }
         }
     }

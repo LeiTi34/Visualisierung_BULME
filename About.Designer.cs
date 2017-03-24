@@ -1,4 +1,6 @@
-﻿namespace vis1
+﻿using vis1.Properties;
+
+namespace vis1
 {
     partial class About
     {
@@ -62,7 +64,7 @@
             this.titel.Name = "titel";
             this.titel.Size = new System.Drawing.Size(176, 47);
             this.titel.TabIndex = 0;
-            this.titel.Text = "SvVis";
+            this.titel.Text = Resources.Name;
             this.titel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // autor
@@ -72,7 +74,7 @@
             this.autor.Name = "autor";
             this.autor.Size = new System.Drawing.Size(176, 47);
             this.autor.TabIndex = 1;
-            this.autor.Text = "Autor: Alex Leidwein";
+            this.autor.Text = Resources.Autor + @": "+ Resources.Autorname;
             this.autor.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // version
@@ -82,7 +84,7 @@
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(176, 60);
             this.version.TabIndex = 2;
-            this.version.Text = "Version: 2.3";
+            this.version.Text = Resources.Version + @": " + Resources.Versionsnummer;
             this.version.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // About

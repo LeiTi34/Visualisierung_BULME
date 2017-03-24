@@ -312,7 +312,7 @@ namespace vis1
 
         private void enableToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            _ph.SingleShotEnabled = !_ph.SingleShotEnabled;
+            //_ph.SingleShotEnabled = !_ph.SingleShotEnabled;
         }
 
         private void setValueToolStripMenuItem_Click(object sender, EventArgs e)
@@ -323,7 +323,7 @@ namespace vis1
             _ph.SingleShotChannel = sssv.SingleShotChannel;
             _ph.SingleShotTrigger = sssv.SingleShotTrigger;*/
 
-            SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
+            /*SingleShotSetVals sssv = new SingleShotSetVals(_ph.SingleShotTrigger, _ph.SingleShotChannel);
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
             if (sssv.ShowDialog(this) == DialogResult.OK)
@@ -334,7 +334,7 @@ namespace vis1
             }
             else
             { }
-            sssv.Dispose();
+            sssv.Dispose();*/
 
         }
 

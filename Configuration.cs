@@ -45,7 +45,7 @@ namespace vis1
                 {
                     m_SerPort.Open(); //Serielle verbindung öffnen
 
-                    _ph = new BufProtocolHandler(m_SerPort, this);
+                    //_ph = new BufProtocolHandler(m_SerPort, this);
                     _communicationIsOpen = true;
 
                     return true;
